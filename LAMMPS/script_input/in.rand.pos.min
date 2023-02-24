@@ -1,0 +1,16 @@
+# minimize random positions
+
+dimension 3
+boundary p p p
+units metal
+atom_style atomic
+
+read_data rand.data
+
+
+pair_style meam
+pair_coeff * * /home/mdi0316/CODES/lammps-22Aug18/potentials/library.meam AlS /home/mdi0316/CODES/lammps-22Aug18/potentials/AlSiMgCuFe.meam AlS 
+
+dumo 1 all custom 100 dump.random.bin id x y z vx vy vz
+timestep 0.01
+minimize 0.0 1.0e-8 10000 100000

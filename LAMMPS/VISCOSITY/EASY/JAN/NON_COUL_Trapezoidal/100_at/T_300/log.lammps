@@ -1,0 +1,228 @@
+LAMMPS (22 Aug 2018)
+##
+dimension 3
+boundary p p p
+atom_style full
+units metal
+#kspace_style pppm/cg 1.0e-4
+#kspace_modify pressure/scalar no
+dielectric 2.0
+bond_style harmonic
+angle_style harmonic
+
+neighbor 2.0 bin
+neigh_modify delay 0 every 1 check yes page 500000 one 50000
+
+region box1 block -40.0 40.0 -40.0 40.0 -40.0 40.0
+create_box 4 box1 bond/types 2 extra/bond/per/atom 2 angle/types 1 extra/angle/per/atom 1 extra/special/per/atom 10
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+
+molecule cat_ion cation_mol.txt
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+
+mass    1  86.8 #anion
+mass    2  67.0 #ring
+mass    3  15.0 #methyl
+mass    4  29.0 #ethyl
+
+create_atoms 1 random 100 1340 box1
+Created 100 atoms
+  Time spent = 0.0014379 secs
+create_atoms 0 random 100 2345 box1 mol cat_ion 1234
+Created 300 atoms
+  Time spent = 0.000114918 secs
+#create_atoms 1 single  10.0 0.0 0.0
+#create_atoms 0 single 0.0 0.0 0.0 mol cat_ion 1234
+group anion type 1
+100 atoms in group anion
+group ring type 2
+100 atoms in group ring
+group methyl type 3
+100 atoms in group methyl
+group ethyl type 4
+100 atoms in group ethyl
+
+bond_coeff 1 207.729 2.689748837
+bond_coeff 2 207.729 3.04931147
+angle_coeff 1 207.729 144.1868904
+
+
+## -- INTERATOMIC POTENTIALS -- #
+pair_style nm/cut 30.0
+################### properties to change
+## values from easy begin
+
+pair_coeff 1 1 2.55775855 5.77468231 10.177908113392 12.0000
+pair_coeff 1 2 3.34765931 6.26892741 10.177908113392 12.0000
+pair_coeff 1 3 2.00556578 4.28154794 10.177908113392 12.0000
+pair_coeff 1 4 2.80927754 6.79832446 10.177908113392 12.0000
+pair_coeff 2 2 4.38150147 6.80547410 10.177908113392 12.0000
+pair_coeff 2 3 2.62493539 4.64799825 10.177908113392 12.0000
+pair_coeff 2 4 3.67685374 7.38018133 10.177908113392 12.0000
+pair_coeff 3 3 1.57258553 3.17448680 10.177908113392 12.0000
+pair_coeff 3 4 2.20278450 5.04051142 10.177908113392 12.0000
+pair_coeff 4 4 3.08552981 8.00342131 10.177908113392 12.0000
+
+## values from easy end
+
+
+#create_bonds single/bond 1 2 3
+#create_bonds single/bond 2 2 4
+#create_bonds single/angle 1 3 2 4
+
+set type 1 charge -1.0
+  100 settings made for charge
+#set type 2 charge  0.408675
+#set type 3 charge  0.317505
+#set type 4 charge  0.273820
+
+########################################
+
+write_data solid.data pair ij
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 32
+  ghost atom cutoff = 32
+  binsize = 16, bins = 5 5 5
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+
+thermo_style	custom step temp pe ke ebond press density
+
+##################################
+variable    T equal 300
+variable    V equal vol
+variable    dt equal 0.00005
+variable    p equal 400     # correlation length
+variable    s equal 5       # sample interval
+variable    d equal $p*$s   # dump interval
+variable    d equal 400*$s   
+variable    d equal 400*5   
+
+# convert from LAMMPS real units to SI
+
+variable    kB equal 1.3806504e-23    # [J/K/** Boltzmann
+variable    bar2Pa equal 100000.0
+variable    A2m equal 1.0e-10
+variable    ps2s equal 1.0e-12
+variable    convert equal ${bar2Pa}*${bar2Pa}*${ps2s}*${A2m}*${A2m}*${A2m}
+variable    convert equal 100000*${bar2Pa}*${ps2s}*${A2m}*${A2m}*${A2m}
+variable    convert equal 100000*100000*${ps2s}*${A2m}*${A2m}*${A2m}
+variable    convert equal 100000*100000*1e-12*${A2m}*${A2m}*${A2m}
+variable    convert equal 100000*100000*1e-12*1e-10*${A2m}*${A2m}
+variable    convert equal 100000*100000*1e-12*1e-10*1e-10*${A2m}
+variable    convert equal 100000*100000*1e-12*1e-10*1e-10*1e-10
+timestep    ${dt}
+timestep    5e-05
+variable    tdamp equal ${dt}*10.
+variable    tdamp equal 5e-05*10.
+variable    pdamp equal ${dt}*100.
+variable    pdamp equal 5e-05*100.
+thermo      $d
+thermo      2000
+
+variable    ILdens equal density
+variable    ILstep equal step
+variable    ILtime equal time*1.0e-12 #from ps to s
+variable    ILtemp equal temp
+variable    ILpe equal pe
+variable    ILke equal ke
+variable    ILpr equal press
+
+##################################
+fix         333 all print 2000 "${ILstep} ${ILtime} ${ILdens} ${ILtemp} ${ILpr} ${ILpe} ${ILke}" file density.dat screen no
+dump        1 all dcd $d minim.dcd
+dump        1 all dcd 2000 minim.dcd
+dump        2 all custom $d dump.atom id mass type x y z
+dump        2 all custom 2000 dump.atom id mass type x y z
+
+##################################
+##################################
+#  Minimize initial
+##################################
+
+velocity     all create $T 987654321 mom yes rot yes dist gaussian
+velocity     all create 300 987654321 mom yes rot yes dist gaussian
+minimize 1.e-4 1.0e-6 1000 10000
+Per MPI rank memory allocation (min/avg/max) = 11.18 | 11.18 | 11.18 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          300 3.7805329e+11    15.472439    1.4574399 4.7573404e+12  0.064151289 
+    1000          300   -3469.2111    15.472439    2.9172703    -791.0285  0.064151289 
+Loop time of 10.0336 on 1 procs for 1000 steps with 400 atoms
+
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = max iterations
+  Energy initial, next-to-last, final = 
+          378053291431     -3467.69775091     -3469.21110809
+  Force two-norm initial, final = 6.56861e+12 44.2015
+  Force max component initial, final = 2.90062e+12 13.8323
+  Final line search alpha, max atom move = 0.00233662 0.0323208
+  Iterations, force evaluations = 1000 1724
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 9.9256     | 9.9256     | 9.9256     |   0.0 | 98.92
+Bond    | 0.024786   | 0.024786   | 0.024786   |   0.0 |  0.25
+Neigh   | 0.048231   | 0.048231   | 0.048231   |   0.0 |  0.48
+Comm    | 0.018284   | 0.018284   | 0.018284   |   0.0 |  0.18
+Output  | 4.5061e-05 | 4.5061e-05 | 4.5061e-05 |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.01661    |            |       |  0.17
+
+Nlocal:    400 ave 400 max 400 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    1836 ave 1836 max 1836 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    20203 ave 20203 max 20203 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 20203
+Ave neighs/atom = 50.5075
+Ave special neighs/atom = 1.5
+Neighbor list builds = 64
+Dangerous builds = 0
+
+reset_timestep 0
+fix 1 all npt temp $T $T ${tdamp} iso 1.0 1.0 ${pdamp}
+fix 1 all npt temp 300 $T ${tdamp} iso 1.0 1.0 ${pdamp}
+fix 1 all npt temp 300 300 ${tdamp} iso 1.0 1.0 ${pdamp}
+fix 1 all npt temp 300 300 0.0005 iso 1.0 1.0 ${pdamp}
+fix 1 all npt temp 300 300 0.0005 iso 1.0 1.0 0.005
+run             200000
+Per MPI rank memory allocation (min/avg/max) = 10.05 | 10.05 | 10.05 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          300   -3469.2111    15.472439    2.9172703    -791.0285  0.064151289 
+    2000    302.91423   -3510.3172     15.62274    2.3706262   -433.19036  0.068270422 
+    4000    298.89749   -3555.2088    15.415577    3.6263017    1617.8363  0.072987394 
+    6000     305.1713   -3611.0292    15.739148    2.7769942    957.28215  0.076684246 
+    8000    305.56314   -3657.0838    15.759357    4.7288015    2683.4618  0.080755382 
+   10000     319.4781   -3706.5207    16.477018    1.9010334    -1310.932  0.084212833 
+   12000    315.59218   -3757.7232    16.276603    2.3310851   -133.31049  0.090195268 
+   14000    319.82523   -3822.5645    16.494921    4.7378932     3005.039  0.098436931 
+   16000    328.95591   -3890.9204    16.965834    3.0831286    1288.4783    0.1052773 
+   18000    284.02376   -3946.2915    14.648468    1.8228526   -3337.0406   0.11128671 
+   20000    324.76598   -4011.4702     16.74974    1.9013596   -2256.2689   0.11967813 
+   22000    298.31773   -4080.4844    15.385676    2.2602253   -550.68955   0.12954854 
+   24000    320.67888   -4148.0699    16.538948    2.4893451   -30.854648   0.14228133 
+   26000    292.68889   -4227.8032    15.095371     2.016066   -3193.0309   0.15563475 
+   28000    299.23422     -4322.95    15.432945    3.2580937     1067.316   0.16979743 
+   30000    299.61979   -4423.3045     15.45283    2.4808424   -2445.1203   0.18437985 
+   32000    289.26237   -4532.4275    14.918648    6.7260732     8531.696   0.20223526 
+   34000    302.00916   -4641.5284    15.576062     3.659284    1977.1901   0.21893089 
+   36000    300.27777   -4738.7558    15.486765     9.544211    15472.317   0.23885154 
+ERROR: Non-numeric pressure - simulation unstable (../fix_nh.cpp:1038)
+Last command: run             200000

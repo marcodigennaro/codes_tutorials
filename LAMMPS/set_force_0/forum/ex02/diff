@@ -1,0 +1,44 @@
+15,18c15
+< read_data read_file.txt
+< molecule sys1_hard sys1.txt
+< molecule sys1_weak sys1.txt
+< molecule sys2 sys2.txt
+---
+> read_data read_file.in
+20,21c17,21
+< #fix my_23 all bond/react stabilization no &
+< #    react my_rxn_23 all 1 4.0 7.0 sys1_weak sys1_hard map.txt
+---
+> ## -- INTERATOMIC POTENTIALS -- #
+> pair_coeff 1 1 0.01 4
+> pair_coeff 2 2 0.01 10
+> pair_coeff 3 3 0.01 4
+> pair_coeff 4 4 0.01 4
+25,30c25,31
+< compute 1 all com
+< compute 2 all bond/local force #dist engpot
+< variable center_of_mass equal c_1[1]
+< variable bond_dist equal c_2[1]
+< fix print_com  all print 1 "${center_of_mass} " file com.txt screen no title "com"
+< fix print_bond all print 2 "${bond_dist} " file bond.txt screen no title "b1"
+---
+> variable ILpe equal pe
+> fix my_fix all print 1 "0,${radius},${theta},${phi},${ILpe}" file pot_ener.csv screen no 
+> 
+> ##############################################
+> fix bond_2_close all bond/break       0 2 4 4.5
+> fix bond_2_far   all ring bond/create 0 2 4 4.5
+> ##############################################
+35,39c36
+< timestep        0.0001
+< thermo 		1
+< 
+< min_style cg 
+< minimize 1e-2 1e-2 100 100 
+---
+> timestep	1
+41c38,39
+< fix 1 all nve # temp 300.0 300.0 100.0
+---
+> thermo   100
+> thermo_style custom step temp pe ke ebond press density

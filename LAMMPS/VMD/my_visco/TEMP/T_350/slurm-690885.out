@@ -1,0 +1,1670 @@
+Starting at Wed Oct 17 16:36:25 CEST 2018
+Running on hosts: node007
+Running on 1 nodes.
+Running on 16 processors.
+Current working directory is /data/scratch-no-backup/mdi0316/WORK/LAMMPS/17_10/my_visco/TEMP/T_350
+LAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.00209403 secs
+Created 60 atoms
+  Time spent = 8.10623e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.00875092 on 1 procs for 4 steps with 80 atoms
+
+83.5% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00097179 | 0.00097179 | 0.00097179 |   0.0 | 11.11
+Bond    | 6.9141e-05 | 6.9141e-05 | 6.9141e-05 |   0.0 |  0.79
+Kspace  | 0.0059288  | 0.0059288  | 0.0059288  |   0.0 | 67.75
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 3.9339e-05 | 3.9339e-05 | 3.9339e-05 |   0.0 |  0.45
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.001742   |            |       | 19.91
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.0020721 secs
+Created 60 atoms
+  Time spent = 6.69956e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.0124922 on 1 procs for 4 steps with 80 atoms
+
+59.2% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00088739 | 0.00088739 | 0.00088739 |   0.0 |  7.10
+Bond    | 7.0095e-05 | 7.0095e-05 | 7.0095e-05 |   0.0 |  0.56
+Kspace  | 0.005893   | 0.005893   | 0.005893   |   0.0 | 47.17
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 3.8624e-05 | 3.8624e-05 | 3.8624e-05 |   0.0 |  0.31
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.005603   |            |       | 44.85
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.00206804 secs
+Created 60 atoms
+  Time spent = 6.00815e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.019532 on 1 procs for 4 steps with 80 atoms
+
+38.8% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00089955 | 0.00089955 | 0.00089955 |   0.0 |  4.61
+Bond    | 6.8665e-05 | 6.8665e-05 | 6.8665e-05 |   0.0 |  0.35
+Kspace  | 0.0059805  | 0.0059805  | 0.0059805  |   0.0 | 30.62
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 4.0293e-05 | 4.0293e-05 | 4.0293e-05 |   0.0 |  0.21
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.01254    |            |       | 64.22
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.00212908 secs
+Created 60 atoms
+  Time spent = 6.41346e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.021663 on 1 procs for 4 steps with 80 atoms
+
+34.2% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00088143 | 0.00088143 | 0.00088143 |   0.0 |  4.07
+Bond    | 6.485e-05  | 6.485e-05  | 6.485e-05  |   0.0 |  0.30
+Kspace  | 0.018918   | 0.018918   | 0.018918   |   0.0 | 87.33
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 3.9816e-05 | 3.9816e-05 | 3.9816e-05 |   0.0 |  0.18
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.001759   |            |       |  8.12
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.00202298 secs
+Created 60 atoms
+  Time spent = 5.88894e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.0107272 on 1 procs for 4 steps with 80 atoms
+
+66.7% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00087357 | 0.00087357 | 0.00087357 |   0.0 |  8.14
+Bond    | 6.6042e-05 | 6.6042e-05 | 6.6042e-05 |   0.0 |  0.62
+Kspace  | 0.007875   | 0.007875   | 0.007875   |   0.0 | 73.41
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 3.8624e-05 | 3.8624e-05 | 3.8624e-05 |   0.0 |  0.36
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.001874   |            |       | 17.47
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.00205088 secs
+Created 60 atoms
+  Time spent = 5.98431e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.0289071 on 1 procs for 4 steps with 80 atoms
+
+25.4% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00089002 | 0.00089002 | 0.00089002 |   0.0 |  3.08
+Bond    | 6.6519e-05 | 6.6519e-05 | 6.6519e-05 |   0.0 |  0.23
+Kspace  | 0.013087   | 0.013087   | 0.013087   |   0.0 | 45.27
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 4.1723e-05 | 4.1723e-05 | 4.1723e-05 |   0.0 |  0.14
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.01482    |            |       | 51.28
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.00206494 secs
+Created 60 atoms
+  Time spent = 6.10352e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.0210762 on 1 procs for 4 steps with 80 atoms
+
+35.1% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00088668 | 0.00088668 | 0.00088668 |   0.0 |  4.21
+Bond    | 6.628e-05  | 6.628e-05  | 6.628e-05  |   0.0 |  0.31
+Kspace  | 0.0059266  | 0.0059266  | 0.0059266  |   0.0 | 28.12
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 3.9816e-05 | 3.9816e-05 | 3.9816e-05 |   0.0 |  0.19
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.01416    |            |       | 67.17
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.00209093 secs
+Created 60 atoms
+  Time spent = 6.00815e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.026726 on 1 procs for 4 steps with 80 atoms
+
+26.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00088692 | 0.00088692 | 0.00088692 |   0.0 |  3.32
+Bond    | 6.6996e-05 | 6.6996e-05 | 6.6996e-05 |   0.0 |  0.25
+Kspace  | 0.013839   | 0.013839   | 0.013839   |   0.0 | 51.78
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 4.3869e-05 | 4.3869e-05 | 4.3869e-05 |   0.0 |  0.16
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.01189    |            |       | 44.49
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.00209498 secs
+Created 60 atoms
+  Time spent = 6.19888e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.034384 on 1 procs for 4 steps with 80 atoms
+
+20.5% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00087547 | 0.00087547 | 0.00087547 |   0.0 |  2.55
+Bond    | 6.8426e-05 | 6.8426e-05 | 6.8426e-05 |   0.0 |  0.20
+Kspace  | 0.005904   | 0.005904   | 0.005904   |   0.0 | 17.17
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 4.4584e-05 | 4.4584e-05 | 4.4584e-05 |   0.0 |  0.13
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.02749    |            |       | 79.95
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.00206614 secs
+Created 60 atoms
+  Time spent = 6.19888e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.034379 on 1 procs for 4 steps with 80 atoms
+
+22.7% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0008924  | 0.0008924  | 0.0008924  |   0.0 |  2.60
+Bond    | 6.6042e-05 | 6.6042e-05 | 6.6042e-05 |   0.0 |  0.19
+Kspace  | 0.0059011  | 0.0059011  | 0.0059011  |   0.0 | 17.16
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 3.9101e-05 | 3.9101e-05 | 3.9101e-05 |   0.0 |  0.11
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.02748    |            |       | 79.93
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.00209403 secs
+Created 60 atoms
+  Time spent = 6.29425e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.0195539 on 1 procs for 4 steps with 80 atoms
+
+38.2% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00087237 | 0.00087237 | 0.00087237 |   0.0 |  4.46
+Bond    | 6.6042e-05 | 6.6042e-05 | 6.6042e-05 |   0.0 |  0.34
+Kspace  | 0.0064535  | 0.0064535  | 0.0064535  |   0.0 | 33.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 3.7909e-05 | 3.7909e-05 | 3.7909e-05 |   0.0 |  0.19
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.01212    |            |       | 62.00
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.00204706 secs
+Created 60 atoms
+  Time spent = 6.10352e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.0270679 on 1 procs for 4 steps with 80 atoms
+
+27.3% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00088048 | 0.00088048 | 0.00088048 |   0.0 |  3.25
+Bond    | 6.5327e-05 | 6.5327e-05 | 6.5327e-05 |   0.0 |  0.24
+Kspace  | 0.0068886  | 0.0068886  | 0.0068886  |   0.0 | 25.45
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 4.0054e-05 | 4.0054e-05 | 4.0054e-05 |   0.0 |  0.15
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.01919    |            |       | 70.91
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.00204515 secs
+Created 60 atoms
+  Time spent = 5.79357e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.0138631 on 1 procs for 4 steps with 80 atoms
+
+47.8% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00090933 | 0.00090933 | 0.00090933 |   0.0 |  6.56
+Bond    | 6.5088e-05 | 6.5088e-05 | 6.5088e-05 |   0.0 |  0.47
+Kspace  | 0.0058541  | 0.0058541  | 0.0058541  |   0.0 | 42.23
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 3.4571e-05 | 3.4571e-05 | 3.4571e-05 |   0.0 |  0.25
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.007      |            |       | 50.49
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.0020752 secs
+Created 60 atoms
+  Time spent = 6.10352e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.027808 on 1 procs for 4 steps with 80 atoms
+
+23.2% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00091171 | 0.00091171 | 0.00091171 |   0.0 |  3.28
+Bond    | 6.6757e-05 | 6.6757e-05 | 6.6757e-05 |   0.0 |  0.24
+Kspace  | 0.01298    | 0.01298    | 0.01298    |   0.0 | 46.68
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 3.8862e-05 | 3.8862e-05 | 3.8862e-05 |   0.0 |  0.14
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.01381    |            |       | 49.66
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTsLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.00205708 secs
+Created 60 atoms
+  Time spent = 5.88894e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.01425 on 1 procs for 4 steps with 80 atoms
+
+52.2% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00087619 | 0.00087619 | 0.00087619 |   0.0 |  6.15
+Bond    | 7.0095e-05 | 7.0095e-05 | 7.0095e-05 |   0.0 |  0.49
+Kspace  | 0.0058689  | 0.0058689  | 0.0058689  |   0.0 | 41.19
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 3.7909e-05 | 3.7909e-05 | 3.7909e-05 |   0.0 |  0.27
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.007397   |            |       | 51.91
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTsLAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+Created 20 atoms
+  Time spent = 0.00212002 secs
+Created 60 atoms
+  Time spent = 6.10352e-05 secs
+20 atoms in group anion
+20 atoms in group ring
+20 atoms in group methyl
+20 atoms in group ethyl
+Setting atom values ...
+  20 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Setting up cg style minimization ...
+  Unit style    : metal
+  Current step  : 0
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          350    -6.281606     3.574043   0.28064255    212.37441  0.012830258 
+       4          350   -6.5663272     3.574043 0.00056886979   -4.3553995  0.012830258 
+Loop time of 0.0215049 on 1 procs for 4 steps with 80 atoms
+
+34.4% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00088406 | 0.00088406 | 0.00088406 |   0.0 |  4.11
+Bond    | 6.628e-05  | 6.628e-05  | 6.628e-05  |   0.0 |  0.31
+Kspace  | 0.0059597  | 0.0059597  | 0.0059597  |   0.0 | 27.71
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 4.077e-05  | 4.077e-05  | 4.077e-05  |   0.0 |  0.19
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.01455    |            |       | 67.68
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FF

@@ -1,0 +1,73 @@
+# fix gcmc example with fix shake
+
+# variables available on command line
+
+variable        mu index -8.1
+variable	disp index 0.5
+variable        temp index 338.0
+variable        lbox index 10.0
+variable        spacing index 5.0
+
+# global model settings
+
+units           real
+atom_style      full
+boundary        p p p
+pair_style      lj/cut/coul/long  14 
+pair_modify     mix arithmetic tail yes
+kspace_style    ewald 0.0001
+bond_style      harmonic
+angle_style     harmonic
+
+# box, start molecules on simple cubic lattice
+
+lattice 	sc ${spacing}
+region          box block 0 ${lbox} 0 ${lbox} 0 ${lbox} units box
+create_box      4 box                       &
+                bond/types  3               &
+                angle/types 1               &
+                extra/bond/per/atom 2       &
+                extra/angle/per/atom 1      
+
+molecule        h2omol H2O.txt
+create_atoms   	1 box mol h2omol 464563 units box
+create_atoms   	2 box mol h2omol 464563 units box
+#create_atoms   	3 box mol h2omol 464563 units box
+                        
+molecule        sys2 sys2.txt
+#create_atoms   	4 box mol sys2 464563 units box
+                        
+# rigid SPC/E water model
+
+dump   wgat all atom 1 dump.atom
+dump   asof all dcd  1 dump.dcd
+pair_coeff      1 1 1 1
+pair_coeff      2 2 1 1
+pair_coeff      3 3 1 1
+pair_coeff      4 4 1 1
+
+bond_coeff      1     1000       1.0   
+bond_coeff      2     1000       1.0   
+bond_coeff      3      100       1.0   
+angle_coeff     1      100       109.47
+
+# masses
+
+mass 1 15.9994 
+mass 2 1.0
+mass 3 2.0
+mass 4 2.0
+
+create_bonds single/bond 1 2 3
+create_bonds single/bond 2 2 4
+create_bonds single/angle 1 3 2 4
+
+thermo 100
+velocity all zero linear
+reset_timestep  0
+timestep        1.0
+
+set atom 1 x 0 y 0 z 0
+minimize 0.0 1.0e-8 100 1000
+
+run 1

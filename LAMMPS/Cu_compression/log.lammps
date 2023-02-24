@@ -1,0 +1,219 @@
+LAMMPS (16 Mar 2018)
+# Input file for uniaxial compressiCu ve loading of single crystal aluminum
+# Mark Tschopp, November 2010
+
+# ------------------------ INITIALIZATION ----------------------------
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+variable latparam equal 3.61
+
+# ----------------------- ATOM DEFINITION ----------------------------
+lattice		fcc ${latparam}
+lattice		fcc 3.61
+Lattice spacing in x,y,z = 3.61 3.61 3.61
+region		whole block 0 10 0 10 0 10
+create_box	1 whole
+Created orthogonal box = (0 0 0) to (36.1 36.1 36.1)
+  1 by 1 by 1 MPI processor grid
+
+region		upper block INF INF INF INF INF INF units box
+lattice 	fcc ${latparam} orient x 1 0 0 orient y 0 1 0 orient z 0 0 1
+lattice 	fcc 3.61 orient x 1 0 0 orient y 0 1 0 orient z 0 0 1
+Lattice spacing in x,y,z = 3.61 3.61 3.61
+create_atoms	1 region upper
+Created 4000 atoms
+  Time spent = 0.00240612 secs
+
+# ------------------------ FORCE FIELDS ------------------------------
+pair_style	meam
+WARNING: The pair_style meam command is unsupported. Please use pair_style meam/c instead (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/MEAM/pair_meam.cpp:51)
+pair_coeff	* * library.meam Cu Cu.meam Cu
+Reading potential file library.meam with DATE: 2012-06-29
+Reading potential file Cu.meam with DATE: 2007-06-11
+
+# ------------------------- SETTINGS ---------------------------------
+compute csym all centro/atom fcc
+compute peratom all pe/atom
+
+######################################
+# EQUILIBRATION
+reset_timestep	0
+timestep 0.01
+velocity all create 300 12345 mom yes rot no
+fix 1 all npt temp 300 300 1 iso 0 0 1 drag 1
+
+# Set thermo output
+thermo 100
+thermo_style custom step lx ly lz press pxx pyy pzz pe temp
+
+# Run for at least 10 picosecond (assuming 1 fs timestep)
+run 2000
+Neighbor list info ...
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 6
+  ghost atom cutoff = 6
+  binsize = 3, bins = 13 13 13
+  3 neighbor lists, perpetual/occasional/extra = 2 1 0
+  (1) pair meam, perpetual
+      attributes: full, newton on
+      pair build: full/bin/atomonly
+      stencil: full/bin/3d
+      bin: standard
+  (2) pair meam, perpetual, half/full from (1)
+      attributes: half, newton on
+      pair build: halffull/newton
+      stencil: none
+      bin: none
+  (3) compute centro/atom, occasional, copy from (1)
+      attributes: full, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 15.01 | 15.01 | 15.01 Mbytes
+Step Lx Ly Lz Press Pxx Pyy Pzz PotEng Temp 
+       0         36.1         36.1         36.1    15228.088    15158.711    15282.495    15243.059   -14158.578          300 
+     100    36.284679    36.284679    36.284679   -1714.6146   -1841.4406   -1735.6046   -1566.7986   -14074.089     152.0019 
+     200    36.267549    36.267549    36.267549    868.59109    1013.6909    778.78654    813.29577   -14074.193    174.89389 
+     300     36.27911     36.27911     36.27911   -216.97318   -73.085709   -473.58633   -104.24751   -14064.539     179.5549 
+     400    36.285968    36.285968    36.285968   -841.08734   -609.89305   -751.50329   -1161.8657   -14058.708    191.47881 
+     500    36.280701    36.280701    36.280701    196.26296    58.225363    337.51221     193.0513   -14056.718    210.45345 
+     600    36.285171    36.285171    36.285171   -176.79311   -170.54106    -451.0732    91.234939   -14049.904     219.5598 
+     700    36.284153    36.284153    36.284153    263.07255    299.87946   -29.628451    518.96663   -14046.903    235.03453 
+     800    36.291816    36.291816    36.291816   -340.06924   -261.28265   -594.70847   -164.21661   -14041.072    243.75597 
+     900    36.292358    36.292358    36.292358   -273.21307    204.28335   -544.98485    -478.9377   -14037.188     254.6072 
+    1000    36.291138    36.291138    36.291138    89.065512   -218.45666    119.01312    366.64008   -14034.511    265.88074 
+    1100    36.291909    36.291909    36.291909    143.74051    62.382454    14.795014    354.04407   -14030.205    271.93143 
+    1200    36.295882    36.295882    36.295882   -178.82244    90.573629   -426.71449   -200.32645   -14030.096    284.16778 
+    1300    36.290633    36.290633    36.290633    509.98607    563.69132    746.95328     219.3136   -14024.259    283.12279 
+    1400     36.30142     36.30142     36.30142   -512.84095   -403.46078   -441.51808   -693.54399   -14023.061     288.9274 
+    1500    36.292584    36.292584    36.292584    330.66506    311.88446    335.63282    344.47791   -14025.248    299.18101 
+    1600    36.297567    36.297567    36.297567   -42.778899   -166.58602    239.36937   -201.12005   -14022.899    298.89689 
+    1700    36.299862    36.299862    36.299862   -443.37223   -419.37774   -261.21151   -649.52745   -14019.439    294.77573 
+    1800    36.300077    36.300077    36.300077   -218.11333   -414.83818   -171.83434   -67.667468   -14023.655    303.81196 
+    1900    36.297153    36.297153    36.297153    109.14824   -359.26361    312.56342    374.14492   -14022.008    301.01766 
+    2000    36.295886    36.295886    36.295886    87.119035   -338.70657   -5.7125112    605.77619   -14022.219    301.52632 
+Loop time of 236.871 on 1 procs for 2000 steps with 4000 atoms
+
+Performance: 7.295 ns/day, 3.290 hours/ns, 8.443 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 235.63     | 235.63     | 235.63     |   0.0 | 99.47
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.20719    | 0.20719    | 0.20719    |   0.0 |  0.09
+Output  | 0.0028706  | 0.0028706  | 0.0028706  |   0.0 |  0.00
+Modify  | 0.94488    | 0.94488    | 0.94488    |   0.0 |  0.40
+Other   |            | 0.09114    |            |       |  0.04
+
+Nlocal:    4000 ave 4000 max 4000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    5841 ave 5841 max 5841 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    156000 ave 156000 max 156000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+FullNghs:  312000 ave 312000 max 312000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 312000
+Ave neighs/atom = 78
+Neighbor list builds = 0
+Dangerous builds = 0
+unfix 1
+
+# Store final cell length for strain calculations
+variable tmp equal "lx"
+variable L0 equal ${tmp}
+variable L0 equal 36.2958856559865
+print "Initial Length, L0: ${L0}"
+Initial Length, L0: 36.2958856559865
+
+######################################
+# DEFORMATION
+reset_timestep	0
+
+fix		1 all npt temp 300 300 1 y 0 0 1 z 0 0 1 drag 1
+variable srate equal 1.0e10
+variable srate1 equal "-v_srate / 1.0e12"
+fix		2 all deform 1 x erate ${srate1} units box remap x
+fix		2 all deform 1 x erate -0.01 units box remap x
+
+# Output strain and stress info to file
+# for units metal, pressure is in [bars] = 100 [kPa] = 1/10000 [GPa]
+# p2, p3, p4 are in GPa
+variable strain equal "(lx - v_L0)/v_L0"
+variable p1 equal "v_strain"
+variable p2 equal "-pxx/10000"
+variable p3 equal "-pyy/10000"
+variable p4 equal "-pzz/10000"
+fix def1 all print 100 "${p1} ${p2} ${p3} ${p4}" file Cu_comp_100.def1.txt screen no
+
+# Use cfg for AtomEye
+dump 		1 all custom 250 dump.Cu.* id xs ys zs c_csym c_peratom fx fy fz
+
+# Display thermo
+thermo 	100
+thermo_style	custom step v_strain temp v_p2 v_p3 v_p4 ke pe press
+
+run		2000
+Per MPI rank memory allocation (min/avg/max) = 18.31 | 18.31 | 18.31 Mbytes
+Step v_strain Temp v_p2 v_p3 v_p4 KinEng PotEng Press 
+       0 3.9152798e-16    301.52632  0.033870657 0.00057125112 -0.060577619    155.86237   -14022.219    87.119035 
+     100        -0.01    306.94105  -0.80293053  0.039420552  0.012349376     158.6613   -14024.968    2503.8687 
+     200        -0.02    301.91261   -1.6858642 -0.028763743  0.012314538    156.06205   -14019.835     5674.378 
+     300        -0.03    303.11289    -2.548184  -0.11683112 -0.053484497    156.68248    -14016.52    9061.6653 
+     400        -0.04    304.80675   -3.3796707 -0.043841479  0.054366012    157.55806   -14012.117    11230.487 
+     500        -0.05    303.14518   -4.0942325  0.099229109   0.13780602    156.69917   -14004.749    12857.325 
+     600        -0.06    312.79079   -4.7281271 0.0013261443 -0.015230831     161.6851    -14001.61    15806.773 
+     700        -0.07    316.71301   -5.2617366  0.013554426   0.14375485    163.71254   -13993.736    17014.758 
+     800        -0.08    315.40509   -5.7678587 -0.045863991 -0.096112929    163.03646   -13981.452    19699.452 
+     900        -0.09    312.20489   -5.5297672   0.17717884  0.015317041    161.38224   -13967.544    17790.904 
+    1000         -0.1     300.3253   -3.8911119  0.035825571 -0.068229881    155.24155   -13948.758    13078.387 
+    1100        -0.11    298.42196   -2.4902109 -0.063588516 -0.092274188    154.25769   -13937.397    8820.2453 
+    1200        -0.12    305.82688   -1.1577047  -0.14125016 -0.093046375    158.08538   -13936.168     4640.004 
+    1300        -0.13    308.21813  -0.73110298  -0.16036028 -0.084221286    159.32144   -13938.752    3252.2818 
+    1400        -0.14    303.51903  0.042946737 -0.079184632 -0.066381266    156.89242   -13939.088    342.06387 
+    1500        -0.15    297.30842    1.3433674 -0.0030348441  0.042516408    153.68209   -13943.143   -4609.4966 
+    1600        -0.16    304.75784   0.46445733  -0.11018873  0.031055244    157.53278   -13953.581   -1284.4128 
+    1700        -0.17    298.83931 -0.082649117 -0.091987181  0.011321451    154.47342   -13954.218    544.38282 
+    1800        -0.18    297.00536  -0.69433447 -0.068932008  -0.11077988    153.52543    -13953.38    2913.4879 
+    1900        -0.19    297.80308   -1.3797845   0.11259097  0.096239568    153.93778   -13950.672    3903.1797 
+    2000         -0.2    294.12876   -1.6170753 -0.027220755 -0.096698853    152.03849   -13943.756    5803.3164 
+Loop time of 205.354 on 1 procs for 2000 steps with 4000 atoms
+
+Performance: 8.415 ns/day, 2.852 hours/ns, 9.739 timesteps/s
+99.8% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 203.32     | 203.32     | 203.32     |   0.0 | 99.01
+Neigh   | 0.39229    | 0.39229    | 0.39229    |   0.0 |  0.19
+Comm    | 0.20651    | 0.20651    | 0.20651    |   0.0 |  0.10
+Output  | 0.16072    | 0.16072    | 0.16072    |   0.0 |  0.08
+Modify  | 1.1886     | 1.1886     | 1.1886     |   0.0 |  0.58
+Other   |            | 0.08461    |            |       |  0.04
+
+Nlocal:    4000 ave 4000 max 4000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    5899 ave 5899 max 5899 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    138881 ave 138881 max 138881 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+FullNghs:  277762 ave 277762 max 277762 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 277762
+Ave neighs/atom = 69.4405
+Neighbor list builds = 18
+Dangerous builds = 0
+
+######################################
+# SIMULATION DONE
+print "All done"
+All done
+Total wall time: 0:07:22

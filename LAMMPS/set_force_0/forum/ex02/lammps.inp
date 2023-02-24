@@ -1,0 +1,58 @@
+## -- INITIALIZATION -- #
+dimension 3
+boundary p p p
+atom_style full
+units metal
+dielectric 2.0
+bond_style harmonic
+angle_style harmonic
+kspace_style none
+
+neighbor 2.0 bin
+neigh_modify delay 0 every 1 check yes
+
+pair_style lj/cut 30.0
+read_data read_file.txt
+molecule sys1_hard sys1.txt
+molecule sys1_weak sys1.txt
+molecule sys2 sys2.txt
+
+#fix my_23 all bond/react stabilization no &
+#    react my_rxn_23 all 1 4.0 7.0 sys1_weak sys1_hard map.txt
+
+pair_modify shift yes mix geometric
+
+compute 1 all com
+compute 2 all bond/local dist #engpot
+variable center_of_mass equal c_1[1]
+variable bond_dist equal c_2[1]
+fix print_com  all print 1 "${center_of_mass} " file com.txt screen no title "com"
+#fix print_bond all print 2 "${bond_dist} " file bond.txt screen yes title "b1" -echo
+
+## -- EQUILIBRATION -- ##
+velocity  all zero linear
+reset_timestep  0
+timestep	1
+thermo   100
+thermo_style custom step temp pe ke ebond press density
+
+label radius_loop
+variable radius index   3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0
+variable theta  equal   90
+variable phi    equal   0
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vzz equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal cos($(v_theta/180*PI))
+variable  xx equal v_radius*v_vxx
+variable  yy equal v_radius*v_vyy
+variable  zz equal v_radius*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+
+run             1
+
+next radius
+jump lammps.inp radius_loop
+
+

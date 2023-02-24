@@ -1,0 +1,88 @@
+## -- INITIALIZATION -- #
+dimension 3
+boundary p p p
+atom_style full
+units metal
+dielectric 2.0
+bond_style harmonic
+angle_style harmonic
+kspace_style none
+
+neighbor 2.0 bin
+neigh_modify delay 0 every 1 check yes
+
+pair_style lj/cut 30.0
+read_data read_file.in
+
+## -- INTERATOMIC POTENTIALS -- #
+pair_coeff 1 1 0.01 4
+pair_coeff 2 2 0.01 10
+pair_coeff 3 3 0.01 4
+pair_coeff 4 4 0.01 4
+
+pair_modify shift yes mix geometric
+
+variable ILpe equal pe
+#fix my_fix all print 1 "0,${radius},${theta},${phi},${ILpe}" file pot_ener.csv screen no 
+fix 	1 all box/relax iso 0.0 vmax 0.001
+
+##############################################
+#fix bond_2_close 2 bond/break       0 2 4 4.5
+#fix bond_2_far   3 ring bond/create 0 2 4 4.5
+##############################################
+
+## -- EQUILIBRATION -- ##
+velocity  all zero linear
+reset_timestep  0
+timestep	1
+timestep        0.0001
+
+thermo   100
+thermo_style custom step temp pe ke ebond press density
+
+#label radius_loop
+#variable radius index   3.0 3.5 4.0 4.5 5.0 5.5 6.0 7.0 8.0 9.0 10.0 12.0 15.0 20.0 30.0 
+#variable theta  equal   90
+#variable phi    equal   0
+#
+#variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+#variable  vzz equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+#variable  vyy equal cos($(v_theta/180*PI))
+#variable  xx equal v_radius*v_vxx
+#variable  yy equal v_radius*v_vyy
+#variable  zz equal v_radius*v_vzz
+#
+#set atom 1 x ${xx} y ${yy} z ${zz}
+
+# ---------- Define Settings --------------------- 
+compute eng all pe/atom 
+compute eatoms all reduce sum c_eng 
+
+dump myDump all atom 100 dump.atom 
+dump giof   all dcd  100 dump.dcd
+# ---------- Run Minimization --------------------- 
+#dump	1 pe file my_file
+thermo_style custom step pe lx ly lz press pxx pyy pzz c_eatoms 
+min_style cg 
+minimize 1e-2 1e-2 100 100 
+unfix  1 
+
+#NVT  Ensemble
+fix 1 all nve # temp 300.0 300.0 100.0
+#NpT  Ensemble
+#fix 1 water npt temp 300.0 300.0 100.0 &
+#iso 0.0 0.0 1000.0 
+#NpH Ensemble, anisotropic orthorhombic box
+#fix 1 water nph aniso 0.0 0.0 1000.0 
+#NpT Ensemble, Parrinello-Rahman
+#fix 2 jello npt temp 300.0 300.0 100.0 &
+#tri 5.0 5.0 1000.
+
+                ## here 1 = ~10*timestep
+		# here 1 = ~100*timestep
+
+run 10000
+
+#next radius
+#jump lammps.inp radius_loop
+

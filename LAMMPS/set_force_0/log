@@ -1,0 +1,68 @@
+LAMMPS (16 Mar 2018)
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+Created 1 atoms
+  Time spent = 2.59876e-05 secs
+Created 1 atoms
+  Time spent = 0.00235295 secs
+Created 1 atoms
+  Time spent = 1.90735e-06 secs
+Created 1 atoms
+  Time spent = 9.53674e-07 secs
+1 atoms in group anion
+1 atoms in group ring
+1 atoms in group methyl
+1 atoms in group ethyl
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:   0          0          0         
+  special bond factors coul: 0          0          0         
+  1 = max # of 1-2 neighbors
+  0 = max # of 1-3 neighbors
+  0 = max # of 1-4 neighbors
+  1 = max # of special neighbors
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:   0          0          0         
+  special bond factors coul: 0          0          0         
+  2 = max # of 1-2 neighbors
+  1 = max # of 1-3 neighbors
+  1 = max # of 1-4 neighbors
+  2 = max # of special neighbors
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:   0          0          0         
+  special bond factors coul: 0          0          0         
+  2 = max # of 1-2 neighbors
+  1 = max # of 1-3 neighbors
+  1 = max # of 1-4 neighbors
+  2 = max # of special neighbors
+Setting atom values ...
+  1 settings made for charge
+Setting atom values ...
+  1 settings made for charge
+Setting atom values ...
+  1 settings made for charge
+Setting atom values ...
+  1 settings made for charge
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0299583
+  grid = 2 2 2
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.00155756
+  estimated relative force accuracy = 0.000108167
+  using double precision FFTs
+  3d grid and FFT values/proc = 343 8
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 32
+  ghost atom cutoff = 32
+  binsize = 16, bins = 5 5 5
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+ERROR: Replacing a fix, but new style != old style (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/modify.cpp:838)
+Last command: fix 445 all bond/create 1 1 2 4.5

@@ -1,0 +1,14 @@
+Job slurm id: 1244289
+Running on:   node001
+Running on:   1 nodes.
+Running on:   16 processors.
+Current working directory is: /data/mdi0316/WORK/DIMERS/C1MIM_BF4/RUNS/SCAN_from_ISOLATED/N311/B3LYP/T_5/P_270/R_10.0/OPT/DFT
+Rungms local dir is: /data/scratch-no-backup/mdi0316/rungms/1244289
+Input file is: gms_SCAN_from_ISOLATED_c1mim_bf4_T_5_P_270_R_10.0_N311_B3LYP_OPT_DFT.inp
+Log   file is: log.gms_SCAN_from_ISOLATED_c1mim_bf4_T_5_P_270_R_10.0_N311_B3LYP_OPT_DFT_1244289
+which rungms: /home/mdi0316/bin/rungms
+cp: ‘/data/mdi0316/WORK/DIMERS/C1MIM_BF4/RUNS/SCAN_from_ISOLATED/N311/B3LYP/T_5/P_270/R_10.0/OPT/DFT/gms_SCAN_from_ISOLATED_c1mim_bf4_T_5_P_270_R_10.0_N311_B3LYP_OPT_DFT.inp’ and ‘./gms_SCAN_from_ISOLATED_c1mim_bf4_T_5_P_270_R_10.0_N311_B3LYP_OPT_DFT.inp’ are the same file
+cp: cannot stat ‘/data/scratch-no-backup/mdi0316/rungms/1244289/*’: No such file or directory
+Starting at: Fri Aug 16 17:56:06 CEST 2019
+Ending at:   Fri Aug 16 18:14:36 CEST 2019
+Total of 1109.314979931 seconds elapsed for process

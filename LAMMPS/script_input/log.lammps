@@ -1,0 +1,18 @@
+LAMMPS (22 Aug 2018)
+# minimize random positions
+
+dimension 3
+boundary p p p
+units metal
+atom_style atomic
+
+read_data rand.data
+  orthogonal box = (0 0 0) to (20 20 20)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  1000 atoms
+
+
+pair_style meam
+ERROR: Unknown pair style meam (../force.cpp:262)
+Last command: pair_style meam

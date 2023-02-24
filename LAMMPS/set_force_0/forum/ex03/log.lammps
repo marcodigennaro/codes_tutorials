@@ -1,0 +1,24 @@
+LAMMPS (22 Aug 2018)
+# see the documentation for a description of the LJ units
+units real
+atom_style full
+bond_style harmonic
+boundary p f p
+
+region all block -150.00 150.00 -500.00 500.00 -150.00 150.00
+create_box 4 all bond/types 1 extra/bond/per/atom 1
+Created orthogonal box = (-150 -500 -150) to (150 500 150)
+  1 by 1 by 1 MPI processor grid
+
+read_data nanotube.data add merge
+  orthogonal box = (-150 -500 -150) to (150 500 150)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  2040 atoms
+  0 = max # of 1-2 neighbors
+  0 = max # of 1-3 neighbors
+  0 = max # of 1-4 neighbors
+  1 = max # of special neighbors
+molecule 1 molecule.template
+ERROR on proc 0: Molecule auto special bond generation overflow (../molecule.cpp:1142)
+Last command: molecule 1 molecule.template

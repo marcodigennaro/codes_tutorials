@@ -1,0 +1,139 @@
+LAMMPS (22 Aug 2018)
+# input script for topotools tutorial step 1a
+units lj
+boundary p p p
+atom_style angle
+
+read_data data.step1a
+  orthogonal box = (-50 -50 -50) to (50 50 50)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  11 atoms
+  scanning bonds ...
+  1 = max bonds/atom
+  scanning angles ...
+  1 = max angles/atom
+  reading bonds ...
+  10 bonds
+  reading angles ...
+  9 angles
+  2 = max # of 1-2 neighbors
+  2 = max # of 1-3 neighbors
+  4 = max # of 1-4 neighbors
+  6 = max # of special neighbors
+
+# interaction styles
+pair_style lj/cut 2.5
+bond_style harmonic
+angle_style harmonic
+
+# don't compute non-bonded interactions
+# where we have bonded potentials
+special_bonds lj/coul 0.0 0.0 1.0
+  2 = max # of 1-2 neighbors
+  2 = max # of 1-3 neighbors
+  6 = max # of special neighbors
+
+# force field parameters
+pair_coeff   * *   1.0 1.0   # A
+bond_coeff   1     5.0 1.0   # A-A
+angle_coeff  1    10.0 120.0 # A-A-A
+
+# run a few steps of MD to break symmetries.
+velocity all create 0.5 5324324 dist gaussian mom no rot no
+fix 1 all nve
+run 100
+Neighbor list info ...
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 2.8
+  ghost atom cutoff = 2.8
+  binsize = 1.4, bins = 72 72 72
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 6.551 | 6.551 | 6.551 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0          0.5            0    8.9723676    9.6541858        5e-06 
+     100    5.5595358            0    1.9968591    9.5780442 4.5074798e-05 
+Loop time of 0.00353599 on 1 procs for 100 steps with 11 atoms
+
+Performance: 12217243.126 tau/day, 28280.655 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 1.1206e-05 | 1.1206e-05 | 1.1206e-05 |   0.0 |  0.32
+Bond    | 0.00015712 | 0.00015712 | 0.00015712 |   0.0 |  4.44
+Neigh   | 0.0032346  | 0.0032346  | 0.0032346  |   0.0 | 91.48
+Comm    | 3.0994e-05 | 3.0994e-05 | 3.0994e-05 |   0.0 |  0.88
+Output  | 2.5034e-05 | 2.5034e-05 | 2.5034e-05 |   0.0 |  0.71
+Modify  | 4.077e-05  | 4.077e-05  | 4.077e-05  |   0.0 |  1.15
+Other   |            | 3.624e-05  |            |       |  1.02
+
+Nlocal:    11 ave 11 max 11 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1 ave 1 max 1 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1
+Ave neighs/atom = 0.0909091
+Ave special neighs/atom = 3.45455
+Neighbor list builds = 9
+Dangerous builds = 8
+
+# and get the gas-phase minimum structure
+minimize 1.0e-4 1.0e-6 100 1000
+WARNING: Using 'neigh_modify every 1 delay 0 check yes' setting during minimization (../min.cpp:168)
+Per MPI rank memory allocation (min/avg/max) = 7.676 | 7.676 | 7.676 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+     100    5.5595358            0    1.9968591    9.5780442 4.5074798e-05 
+     192    5.5595358            0 2.066413e-10    7.5811851 5.5595512e-05 
+Loop time of 0.00342417 on 1 procs for 92 steps with 11 atoms
+
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = linesearch alpha is zero
+  Energy initial, next-to-last, final = 
+         1.99685906131  2.06641302985e-10  2.06641302985e-10
+  Force two-norm initial, final = 51.0975 0.000302784
+  Force max component initial, final = 20.1759 0.000150582
+  Final line search alpha, max atom move = 0.5 7.52908e-05
+  Iterations, force evaluations = 92 284
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 2.4319e-05 | 2.4319e-05 | 2.4319e-05 |   0.0 |  0.71
+Bond    | 0.00024676 | 0.00024676 | 0.00024676 |   0.0 |  7.21
+Neigh   | 0.0030007  | 0.0030007  | 0.0030007  |   0.0 | 87.63
+Comm    | 3.5763e-05 | 3.5763e-05 | 3.5763e-05 |   0.0 |  1.04
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.0001166  |            |       |  3.40
+
+Nlocal:    11 ave 11 max 11 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    8 ave 8 max 8 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 8
+Ave neighs/atom = 0.727273
+Ave special neighs/atom = 3.45455
+Neighbor list builds = 14
+Dangerous builds = 0
+
+# write out restart for starting a new calculation
+# or to convert it back into a data file.
+write_restart step1a-min.restart
+
+Total wall time: 0:00:00

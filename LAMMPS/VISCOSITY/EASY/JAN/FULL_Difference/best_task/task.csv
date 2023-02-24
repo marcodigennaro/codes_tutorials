@@ -1,0 +1,11 @@
+,label,idx,value
+0,pair_coeff_eps,1,5.6071036168133
+1,pair_coeff_eps,2,2.1414056695992
+2,pair_coeff_eps,3,3.6133010752688
+3,pair_coeff_eps,4,3.5663880742913
+4,pair_coeff_sig,1,0.71358748778104
+5,pair_coeff_sig,2,1.7908113391984
+6,pair_coeff_sig,3,0.92717497556207
+7,pair_coeff_sig,4,0.55571847507331
+8,lj.exp.n,0,11.726295210166
+9,lj.exp.m,0,12.0

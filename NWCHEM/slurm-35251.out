@@ -1,0 +1,15 @@
+Job slurm id: 35251
+Running on:   node007
+Running on:   1 nodes.
+Running on:   16 processors.
+Current working directory is: /mnt/beegfs/data/mdi0316/WORK/TEST/NWCHEM/BF4
+Rungms local dir is: /data/scratch-no-backup/mdi0316/runnwchem/35251
+Input file is: bf4.nw
+Log   file is: log.bf4_35251
+which nwchem:  /home/kgk6966/src/nwchem/nwchem-6.8.1/bin/LINUX64/nwchem
+cp: cannot stat ‘/mnt/beegfs/data/mdi0316/WORK/TEST/NWCHEM/BF4/*.inp’: No such file or directory
+mv: cannot stat ‘/data/scratch-no-backup/mdi0316/runnwchem/35251/tmp/*.dat’: No such file or directory
+cp: cannot stat ‘/data/scratch-no-backup/mdi0316/runnwchem/35251/*’: No such file or directory
+Starting at: jeu. nov.  7 10:40:02 CET 2019
+Ending at:   jeu. nov.  7 10:40:15 CET 2019
+Total of 12.984892857 seconds elapsed for process

@@ -1,0 +1,148 @@
+# -- INITIALIZATION -- #
+dimension 3
+boundary p p p
+atom_style full
+units metal
+dielectric 2.0
+bond_style harmonic
+angle_style harmonic
+kspace_style pppm/cg 1.0e-4
+kspace_modify pressure/scalar yes
+
+neighbor 2.0 bin
+neigh_modify delay 0 every 1 check yes
+
+# -- ATOM DEFINITION -- #
+region box1 block -40.0 40.0 -40.0 40.0 -40.0 40.0
+create_box 4 box1 bond/types 2 extra/bond/per/atom 2 angle/types 1 extra/angle/per/atom 1
+
+#molecule cat_ion cation_mol.txt
+mass    1  86.8 #anion
+mass    2  67.0 #ring
+mass    3  15.0 #methyl
+mass    4  29.0 #ethyl
+
+create_atoms 1 single  10		0.0		0.0	
+create_atoms 2 single   0.00000000e+00  0.00000000e+00  0.00000000e+00
+create_atoms 3 single   0.00000000e+00  2.68974868e+00  3.57630574e-17
+create_atoms 4 single   1.77938428e+00 -2.46598438e+00  0.00000000e+00
+
+group anion  type 1
+group ring   type 2
+group methyl type 3
+group ethyl  type 4
+
+set type 1 charge -1.0
+set type 2 charge  0.408675
+set type 3 charge  0.317505 
+set type 4 charge  0.273820
+
+bond_coeff  1 200.0 2.689748837
+bond_coeff  2 200.0 3.04931147 
+angle_coeff 1 200.0 144.1868904
+
+create_bonds single/bond 1 2 3
+create_bonds single/bond 2 2 4
+create_bonds single/angle 1 3 2 4
+
+## -- INTERATOMIC POTENTIALS -- #
+
+#pair_style nm/cut 30.0
+pair_style nm/cut/coul/long 20.0 30.0
+################### properties to change
+pair_coeff 1 1 2.55775855 5.77468231 10.17790811 12.00000000
+pair_coeff 1 2 3.34765931 6.26892741 10.17790811 12.00000000
+pair_coeff 1 3 2.00556578 4.28154794 10.17790811 12.00000000
+pair_coeff 1 4 2.80927754 6.79832446 10.17790811 12.00000000
+pair_coeff 2 2 4.38150147 6.80547410 10.17790811 12.00000000
+pair_coeff 2 3 2.62493539 4.64799825 10.17790811 12.00000000
+pair_coeff 2 4 3.67685374 7.38018133 10.17790811 12.00000000
+pair_coeff 3 3 1.57258553 3.17448680 10.17790811 12.00000000
+pair_coeff 3 4 2.20278450 5.04051142 10.17790811 12.00000000
+pair_coeff 4 4 3.08552981 8.00342131 10.17790811 12.00000000
+
+########################################
+
+write_data solid.data pair ij
+
+## -- PROPERTY COMPUTE -- #
+compute peratom all pe/atom
+
+##################################
+## EQUILIBRATION ##
+##################################
+velocity  all zero linear
+reset_timestep  0
+timestep	1
+fix	  333 all print 1 "${dist} ${theta} ${phi} ${ILpe}" file lmps_pot_ener.dat screen no 
+
+thermo   100
+thermo_style custom step temp pe ke ebond press density
+
+compute 	1 all bond/local dist engpot force omega 
+compute 	2 all angle/local eng theta
+dump		1 all local 100 bonds.dump c_1[*]
+dump		2 all local 100 angle.dump c_2[*]
+
+# MD settings
+fix frzanion anion   setforce 0.0 0.0 0.0
+fix frzring  ring    setforce 0.0 0.0 0.0
+
+label dist_loop
+label theta_loop
+label phi_loop
+   
+variable dist   index   3.0 3.5 4.0 4.5 5.0 5.5 6.0 7.0 8.0 9.0 10.0 12.0 15.0 20.0 30.0 
+variable theta  index   5 15 30 45 60 75 90 105 120 135 150 165 175
+variable phi    index   0 30 45 60 90 120 135 150 180 210 225 240 270 300 315
+
+variable  ILpe  equal pe
+variable x1  equal x[1]  #anion
+variable y1  equal y[1]
+variable z1  equal z[1]
+
+variable x3  equal x[3]  #methyl
+variable y3  equal y[3]
+variable z3  equal z[3]
+
+variable x4  equal x[4]  #ethyl
+variable y4  equal y[4]
+variable z4  equal z[4]
+
+variable dist_13 equal sqrt((v_x1-v_x3)*(v_x1-v_x3)+(v_y1-v_y3)*(v_y1-v_y3)+(v_z1-v_z3)*(v_z1-v_z3))
+variable dist_14 equal sqrt((v_x1-v_x4)*(v_x1-v_x4)+(v_y1-v_y4)*(v_y1-v_y4)+(v_z1-v_z4)*(v_z1-v_z4))
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vzz equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal cos($(v_theta/180*PI))
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+
+#print "minimize_condition is ${minimize}"
+#
+#if "(${minimize} == T) && (${dist_13} <= 5.0) && (${dist_13} <= ${dist_14}) " then &
+#   "print 'D_13 = ${dist_13} < 5.0' " &
+#   "fix frzmeth  methyl  setforce NULL NULL 0.0" &
+#   "fix frzeth   ethyl   setforce 0.0 0.0 0.0" &
+#   "minimize    0.0 1.0e-8 1000 100000"
+#
+#if "(${minimize} == T) && (${dist_14} <= 5.0) && (${dist_14} <= ${dist_13}) " then &
+#   "print 'D_14 = ${dist_14} < 5.0' " &
+#   "fix frzmeth  methyl  setforce 0.0 0.0 0.0" &
+#   "fix frzeth   ethyl   setforce NULL NULL 0.0" &
+#   "minimize    0.0 1.0e-8 1000 100000"
+
+run      1
+
+next dist
+jump lmps.inp dist_loop
+
+next theta
+jump lmps.inp theta_loop
+
+next phi
+jump lmps.inp phi_loop
+

@@ -1,0 +1,14 @@
+Job slurm id: 1224151
+Running on:   node001
+Running on:   1 nodes.
+Running on:   16 processors.
+Current working directory is: /data/mdi0316/WORK/MONOMERS/BF4/N311/B3LYP/HES/MP2
+Rungms local dir is: /data/scratch-no-backup/mdi0316/rungms/1224151
+Input file is: gms_bf4_N311_B3LYP_HES_MP2.inp
+Log   file is: log.gms_bf4_N311_B3LYP_HES_MP2_1224151
+which rungms: /home/mdi0316/bin/rungms
+cp: ‘/data/mdi0316/WORK/MONOMERS/BF4/N311/B3LYP/HES/MP2/gms_bf4_N311_B3LYP_HES_MP2.inp’ and ‘./gms_bf4_N311_B3LYP_HES_MP2.inp’ are the same file
+cp: cannot stat ‘/data/scratch-no-backup/mdi0316/rungms/1224151/*’: No such file or directory
+Starting at: Thu Jun 27 15:20:44 CEST 2019
+Ending at:   Thu Jun 27 15:21:47 CEST 2019
+Total of 62.436987486 seconds elapsed for process

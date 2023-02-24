@@ -1,0 +1,139 @@
+LAMMPS (22 Aug 2018)
+# -- INITIALIZATION -- #
+dimension 3
+boundary p p p
+atom_style full
+units metal
+dielectric 2.0
+bond_style harmonic
+angle_style harmonic
+kspace_style pppm/cg 1.0e-4
+kspace_modify pressure/scalar yes
+
+neighbor 2.0 bin
+neigh_modify delay 0 every 1 check yes
+
+# -- ATOM DEFINITION -- #
+region box1 block -40.0 40.0 -40.0 40.0 -40.0 40.0
+create_box 4 box1 bond/types 2 extra/bond/per/atom 2 angle/types 1 extra/angle/per/atom 1
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+
+#molecule cat_ion cation_mol.txt
+mass    1  86.8 #anion
+mass    2  67.0 #ring
+mass    3  15.0 #methyl
+mass    4  29.0 #ethyl
+
+create_atoms 1 single  10		0.0		0.0
+Created 1 atoms
+  Time spent = 1.40667e-05 secs
+create_atoms 2 single   0.00000000e+00  0.00000000e+00  0.00000000e+00
+Created 1 atoms
+  Time spent = 0.00241995 secs
+create_atoms 3 single   0.00000000e+00  2.68974868e+00  3.57630574e-17
+Created 1 atoms
+  Time spent = 2.86102e-06 secs
+create_atoms 4 single   1.77938428e+00 -2.46598438e+00  0.00000000e+00
+Created 1 atoms
+  Time spent = 1.90735e-06 secs
+
+group anion  type 1
+1 atoms in group anion
+group ring   type 2
+1 atoms in group ring
+group methyl type 3
+1 atoms in group methyl
+group ethyl  type 4
+1 atoms in group ethyl
+
+set type 1 charge -1.0
+  1 settings made for charge
+set type 2 charge  0.408675
+  1 settings made for charge
+set type 3 charge  0.317505
+  1 settings made for charge
+set type 4 charge  0.273820
+  1 settings made for charge
+
+bond_coeff  1 200.0 2.689748837
+bond_coeff  2 200.0 3.04931147
+angle_coeff 1 200.0 144.1868904
+
+create_bonds single/bond 1 2 3
+  1 = max # of 1-2 neighbors
+  0 = max # of 1-3 neighbors
+  0 = max # of 1-4 neighbors
+  1 = max # of special neighbors
+create_bonds single/bond 2 2 4
+  2 = max # of 1-2 neighbors
+  1 = max # of 1-3 neighbors
+  1 = max # of 1-4 neighbors
+  2 = max # of special neighbors
+create_bonds single/angle 1 3 2 4
+  2 = max # of 1-2 neighbors
+  1 = max # of 1-3 neighbors
+  1 = max # of 1-4 neighbors
+  2 = max # of special neighbors
+
+## -- INTERATOMIC POTENTIALS -- #
+
+pair_style nm/cut/coul/long 20.0 30.0
+################### properties to change
+pair_coeff 1 1 0.00100000 5.00000000 6.00000000 12.00000000
+pair_coeff 1 2 0.00100000 5.00000000 6.00000000 12.00000000
+pair_coeff 1 3 0.00100000 5.00000000 6.00000000 12.00000000
+pair_coeff 1 4 0.00100000 7.07106781 6.00000000 12.00000000
+pair_coeff 2 2 0.00100000 5.00000000 6.00000000 12.00000000
+pair_coeff 2 3 0.00100000 5.00000000 6.00000000 12.00000000
+pair_coeff 2 4 0.00100000 7.07106781 6.00000000 12.00000000
+pair_coeff 3 3 0.00100000 5.00000000 6.00000000 12.00000000
+pair_coeff 3 4 0.00100000 7.07106781 6.00000000 12.00000000
+pair_coeff 4 4 0.00100000 10.00000000 6.00000000 12.00000000
+
+########################################
+
+write_data solid.data pair ij
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (../kspace.cpp:321)
+  G vector (1/distance) = 0.0299583
+  grid = 2 2 2
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.00155756
+  estimated relative force accuracy = 0.000108167
+  using double precision FFTs
+  3d grid and FFT values/proc = 343 8
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 32
+  ghost atom cutoff = 32
+  binsize = 16, bins = 5 5 5
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+
+## -- PROPERTY COMPUTE -- #
+compute peratom all pe/atom
+##################################
+## EQUILIBRATION ##
+##################################
+velocity  all zero linear
+reset_timestep  0
+timestep	1
+fix	  333 all print 1 "${dist} ${theta} ${phi} ${ILpe}" file lmps_pot_ener.dat screen no
+
+thermo   100
+thermo_style custom step temp pe ke ebond press density
+
+compute 	1 all bond/local dist engpot force omega
+compute 	2 all angle/local eng theta
+compute 	3 anion group/group ring kspace yes #coulomb
+dump		1 all local 100 bonds.dump c_1[*]
+dump		2 all local 100 angle.dump c_2[*]
+dump 		3 all atom  100 coul.dump  c_3[*]
+ERROR: Illegal dump atom command (../dump_atom.cpp:32)
+Last command: dump 		3 all atom  100 coul.dump  c_3[*]

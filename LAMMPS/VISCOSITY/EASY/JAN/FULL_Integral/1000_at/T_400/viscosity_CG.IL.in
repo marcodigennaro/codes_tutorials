@@ -1,0 +1,136 @@
+##
+dimension 3
+boundary p p p
+atom_style full
+units metal
+kspace_style pppm/cg 1.0e-4
+kspace_modify pressure/scalar no
+dielectric 2.0
+bond_style harmonic
+angle_style harmonic
+
+neighbor 2.0 bin
+neigh_modify delay 0 every 1 check yes page 500000 one 50000
+
+region box1 block -40.0 40.0 -40.0 40.0 -40.0 40.0
+create_box 4 box1 bond/types 2 extra/bond/per/atom 2 angle/types 1 extra/angle/per/atom 1 extra/special/per/atom 10
+
+molecule cat_ion cation_mol.txt  
+
+mass    1  86.8 #anion
+mass    2  67.0 #ring
+mass    3  15.0 #methyl
+mass    4  29.0 #ethyl
+
+create_atoms 1 random 1000 1340 box1
+create_atoms 0 random 1000 2345 box1 mol cat_ion 1234
+#create_atoms 1 single  10.0 0.0 0.0
+#create_atoms 0 single 0.0 0.0 0.0 mol cat_ion 1234
+group anion type 1
+group ring type 2
+group methyl type 3
+group ethyl type 4
+
+bond_coeff 1 207.729 2.689748837
+bond_coeff 2 207.729 3.04931147
+angle_coeff 1 207.729 144.1868904
+
+
+## -- INTERATOMIC POTENTIALS -- #
+pair_style nm/cut/coul/long 30.0
+################### properties to change
+## values from easy begin
+
+pair_coeff 1 1 2.55775855 5.77468231 10.177908113392 12.0000
+pair_coeff 1 2 3.34765931 6.26892741 10.177908113392 12.0000
+pair_coeff 1 3 2.00556578 4.28154794 10.177908113392 12.0000
+pair_coeff 1 4 2.80927754 6.79832446 10.177908113392 12.0000
+pair_coeff 2 2 4.38150147 6.80547410 10.177908113392 12.0000
+pair_coeff 2 3 2.62493539 4.64799825 10.177908113392 12.0000
+pair_coeff 2 4 3.67685374 7.38018133 10.177908113392 12.0000
+pair_coeff 3 3 1.57258553 3.17448680 10.177908113392 12.0000
+pair_coeff 3 4 2.20278450 5.04051142 10.177908113392 12.0000
+pair_coeff 4 4 3.08552981 8.00342131 10.177908113392 12.0000
+
+## values from easy end
+
+
+#create_bonds single/bond 1 2 3
+#create_bonds single/bond 2 2 4
+#create_bonds single/angle 1 3 2 4
+
+set type 1 charge -1.0
+#set type 2 charge  0.408675
+#set type 3 charge  0.317505 
+#set type 4 charge  0.273820
+
+########################################
+
+write_data solid.data pair ij
+
+thermo_style	custom step temp pe ke ebond press density
+
+##################################
+variable    T equal 400
+variable    V equal vol
+variable    dt equal 0.00005
+variable    p equal 400     # correlation length
+variable    s equal 5       # sample interval
+variable    d equal $p*$s   # dump interval
+
+# convert from LAMMPS real units to SI
+
+variable    kB equal 1.3806504e-23    # [J/K/** Boltzmann
+variable    bar2Pa equal 100000.0
+variable    A2m equal 1.0e-10
+variable    ps2s equal 1.0e-12
+variable    convert equal ${bar2Pa}*${bar2Pa}*${ps2s}*${A2m}*${A2m}*${A2m}
+timestep    ${dt}
+variable    tdamp equal ${dt}*10.
+variable    pdamp equal ${dt}*100.
+thermo      $d
+
+variable    ILdens equal density
+variable    ILstep equal step
+variable    ILtime equal time*1.0e-12 #from ps to s
+variable    ILtemp equal temp
+variable    ILpe equal pe
+variable    ILke equal ke
+variable    ILpr equal press
+
+##################################
+fix         333 all print 2000 "${ILstep} ${ILtime} ${ILdens} ${ILtemp} ${ILpr} ${ILpe} ${ILke}" file density.dat screen no
+dump        1 all dcd $d minim.dcd
+dump        2 all custom $d dump.atom id mass type x y z
+
+##################################
+##################################
+#  Minimize initial
+##################################
+
+velocity     all create $T 987654321 mom yes rot yes dist gaussian
+minimize 1.e-4 1.0e-6 1000 10000
+
+reset_timestep 0
+fix 1 all npt temp $T $T ${tdamp} iso 1.0 1.0 ${pdamp}
+run             200000
+unfix 1
+unfix 333
+fix 1 all nvt temp $T $T ${tdamp}
+
+reset_timestep 0
+variable     pxy equal pxy
+variable     pxz equal pxz
+variable     pyz equal pyz
+fix          SS all ave/correlate $s $p $d &
+             v_pxy v_pxz v_pyz type auto file S0St.dat ave running
+variable     scale equal ${convert}/(${kB}*$T)*$V*$s*${dt}
+variable     v11 equal trap(f_SS[3])*${scale}
+variable     v22 equal trap(f_SS[4])*${scale}
+variable     v33 equal trap(f_SS[5])*${scale}
+variable     v equal (v_v11+v_v22+v_v33)/3.0
+fix          333 all print $d "${ILstep} ${ILtime} ${ILdens} ${ILtemp} ${ILpr} ${ILpe} ${v}" file visco.dat screen no
+thermo_style custom step temp pe press v_pxy v_pxz v_pyz v_v11 v_v22 v_v33
+run          8000000
+variable     ndens equal count(all)/vol
+print        "average viscosity: $v [Pa.s] @ $T K, ${ndens} /A^3"

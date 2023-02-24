@@ -1,0 +1,219 @@
+LAMMPS (16 Mar 2018)
+##
+dimension 3
+boundary p p p
+atom_style full
+units metal
+kspace_style pppm/cg 1.0e-4
+kspace_modify pressure/scalar no
+dielectric 2.0
+bond_style harmonic
+angle_style harmonic
+
+neighbor 2.0 bin
+neigh_modify delay 0 every 1 check yes page 500000 one 50000
+
+region box1 block -40.0 40.0 -40.0 40.0 -40.0 40.0
+create_box 4 box1 bond/types 2 extra/bond/per/atom 2 angle/types 1 extra/angle/per/atom 1 extra/special/per/atom 10
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+
+molecule cat_ion cation_mol.txt
+Read molecule cat_ion:
+  3 atoms with max type 4
+  2 bonds with max type 2
+  1 angles with max type 1
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+
+mass    1  86.8 #anion
+mass    2  67.0 #ring
+mass    3  15.0 #methyl
+mass    4  29.0 #ethyl
+
+create_atoms 1 random 20 1340 box1                     #at least 40
+Created 20 atoms
+  Time spent = 0.00215316 secs
+create_atoms 0 random 20 2345 box1 mol cat_ion 1234    #at least 40
+Created 60 atoms
+  Time spent = 6.00815e-05 secs
+#create_atoms 1 single  10.0 0.0 0.0
+#create_atoms 0 single 0.0 0.0 0.0 mol cat_ion 1234
+group anion  type 1
+20 atoms in group anion
+group ring   type 2
+20 atoms in group ring
+group methyl type 3
+20 atoms in group methyl
+group ethyl  type 4
+20 atoms in group ethyl
+
+
+bond_coeff  1 200. 2.689748837
+bond_coeff  2 200. 3.04931147
+angle_coeff 1 200. 144.1868904
+
+## -- INTERATOMIC POTENTIALS -- #
+pair_style nm/cut/coul/long 18.0
+################### properties to change
+## values from easy begin
+
+pair_coeff 1 1 0.09482600 0.52785924 6.16617791 12.00000000 ## from EASY
+pair_coeff 1 2 0.52790782 0.52785924 6.16617791 12.00000000 ## from EASY
+pair_coeff 1 3 0.28607227 0.97478112 6.16617791 12.00000000 ## from EASY
+pair_coeff 1 4 0.44628291 0.98229526 6.16617791 12.00000000 ## from EASY
+pair_coeff 2 2 2.93892669 0.52785924 6.16617791 12.00000000 ## from EASY
+pair_coeff 2 3 1.59259891 0.97478112 6.16617791 12.00000000 ## from EASY
+pair_coeff 2 4 2.48451094 0.98229526 6.16617791 12.00000000 ## from EASY
+pair_coeff 3 3 0.86302639 1.80009775 6.16617791 12.00000000 ## from EASY
+pair_coeff 3 4 1.34635187 1.81397389 6.16617791 12.00000000 ## from EASY
+pair_coeff 4 4 2.10035679 1.82795699 6.16617791 12.00000000 ## from EASY
+
+## values from easy end
+
+#create_bonds single/bond 1 2 3
+#create_bonds single/bond 2 2 4
+#create_bonds single/angle 1 3 2 4
+
+set type 1 charge -1.0
+  20 settings made for charge
+#set type 2 charge  0.408675
+#set type 3 charge  0.317505
+#set type 4 charge  0.273820
+
+########################################
+
+write_data solid.data pair ij
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 50000, page size: 500000
+  master list distance cutoff = 20
+  ghost atom cutoff = 20
+  binsize = 10, bins = 8 8 8
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair nm/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+
+thermo_style	custom step temp pe ke ebond press density
+
+##################################
+variable    T equal 300
+variable    V equal vol
+variable    dt equal 0.00005
+variable    p equal 400     # correlation length
+variable    s equal 5       # sample interval
+variable    d equal $p*$s   # dump interval
+variable    d equal 400*$s   
+variable    d equal 400*5   
+
+# convert from LAMMPS real units to SI
+
+variable    kB equal 1.3806504e-23    # [J/K/** Boltzmann
+variable    bar2Pa equal 100000.0
+variable    A2m equal 1.0e-10
+variable    ps2s equal 1.0e-12
+variable    convert equal ${bar2Pa}*${bar2Pa}*${ps2s}*${A2m}*${A2m}*${A2m}
+variable    convert equal 100000*${bar2Pa}*${ps2s}*${A2m}*${A2m}*${A2m}
+variable    convert equal 100000*100000*${ps2s}*${A2m}*${A2m}*${A2m}
+variable    convert equal 100000*100000*1e-12*${A2m}*${A2m}*${A2m}
+variable    convert equal 100000*100000*1e-12*1e-10*${A2m}*${A2m}
+variable    convert equal 100000*100000*1e-12*1e-10*1e-10*${A2m}
+variable    convert equal 100000*100000*1e-12*1e-10*1e-10*1e-10
+timestep    ${dt}
+timestep    5e-05
+variable    tdamp equal ${dt}*10.
+variable    tdamp equal 5e-05*10.
+variable    pdamp equal ${dt}*100.
+variable    pdamp equal 5e-05*100.
+thermo      $d
+thermo      2000
+
+variable  ILdens equal density
+variable  ILstep equal step
+variable  ILtime equal time*1.0e-12 #from ps to s
+variable  ILtemp equal temp
+variable  ILpe equal pe
+variable  ILke equal ke
+variable  ILpr equal press
+
+##################################
+fix       333 all print 2000 "${ILstep} ${ILtime} ${ILdens} ${ILtemp} ${ILpr} ${ILpe} ${ILke}" file density.dat screen no
+dump 1 all dcd $d minim.dcd
+dump 1 all dcd 2000 minim.dcd
+dump 2 all custom $d dump.atom id mass type x y z
+dump 2 all custom 2000 dump.atom id mass type x y z
+
+##################################
+##################################
+#  Minimize initial
+##################################
+
+velocity  all create $T 502844619  mom yes rot yes dist gaussian
+velocity  all create 300 502844619  mom yes rot yes dist gaussian
+minimize  1.e-4 1.0e-6 1000 10000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+  G vector (1/distance) = 0.0981651
+  grid = 9 9 9
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.000887829
+  estimated relative force accuracy = 6.16563e-05
+  using double precision FFTs
+  3d grid and FFT values/proc = 2744 729
+  PPPM/cg optimization cutoff: 1e-05
+  Total charged atoms: 100.0%
+  Min/max charged atoms/proc: 100.0% 100.0%
+Per MPI rank memory allocation (min/avg/max) = 11.67 | 11.67 | 11.67 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0          300    -6.281606    3.0634654   0.28064255    211.30926  0.012830258 
+       4          300   -6.5663272    3.0634654 0.00056886979   -5.4205498  0.012830258 
+Loop time of 0.0211558 on 1 procs for 4 steps with 80 atoms
+
+36.7% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -6.28160601274     -6.56569680478     -6.56632716893
+  Force two-norm initial, final = 21.2513 1.0635
+  Force max component initial, final = 3.2065 0.252856
+  Final line search alpha, max atom move = 0.654296 0.165443
+  Iterations, force evaluations = 4 8
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00090003 | 0.00090003 | 0.00090003 |   0.0 |  4.25
+Bond    | 6.8188e-05 | 6.8188e-05 | 6.8188e-05 |   0.0 |  0.32
+Kspace  | 0.0059319  | 0.0059319  | 0.0059319  |   0.0 | 28.04
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 4.1962e-05 | 4.1962e-05 | 4.1962e-05 |   0.0 |  0.20
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.01421    |            |       | 67.19
+
+Nlocal:    80 ave 80 max 80 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    152 ave 152 max 152 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    257 ave 257 max 257 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 257
+Ave neighs/atom = 3.2125
+Ave special neighs/atom = 1.5
+Neighbor list builds = 0
+Dangerous builds = 0
+

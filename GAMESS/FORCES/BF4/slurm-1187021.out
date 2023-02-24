@@ -1,0 +1,12 @@
+Job slurm id: 1187021
+Running on:   node015
+Running on:   1 nodes.
+Running on:   16 processors.
+Current working directory is: /data/mdi0316/WORK/MONOMERS/BF4/N311/B3LYP/OPT/ZMAT/DFT
+Rungms local dir is: /data/scratch-no-backup/mdi0316/rungms/1187021
+Input file is: gms_bf4_N311_B3LYP_OPT.inp
+Log   file is: log.gms_bf4_N311_B3LYP_OPT_1187021
+which rungms: /home/mdi0316/bin/rungms
+cp: ‘/data/mdi0316/WORK/MONOMERS/BF4/N311/B3LYP/OPT/ZMAT/DFT/gms_bf4_N311_B3LYP_OPT.inp’ and ‘./gms_bf4_N311_B3LYP_OPT.inp’ are the same file
+cp: ‘/data/mdi0316/WORK/MONOMERS/BF4/N311/B3LYP/OPT/ZMAT/DFT/gms_bf4_N311_B3LYP_OPT_ZMAT_DFT.inp’ and ‘./gms_bf4_N311_B3LYP_OPT_ZMAT_DFT.inp’ are the same file
+slurmstepd: *** JOB 1187021 ON node015 CANCELLED AT 2019-04-17T09:19:34 ***

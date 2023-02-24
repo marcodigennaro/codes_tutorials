@@ -1,0 +1,7 @@
+,type,n_atoms,T,status,error,dens.ave,visco.ave
+0,FULL_Difference,100,300,not.complete,Neighbor.error,,
+1,NON_COUL_Trapezoidal,100,300,not.complete,Pressure.error,,
+2,FULL_Integral,100,300,,Pressure.error,,
+3,NON_COUL_Integral,100,300,,Pressure.error,,
+4,NON_COUL_Difference,100,300,,Pressure.error,,
+5,FULL_Trapezoidal,100,300,,Pressure.error,,

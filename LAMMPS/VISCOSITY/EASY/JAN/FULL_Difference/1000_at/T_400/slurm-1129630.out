@@ -1,0 +1,8 @@
+Job slurm id: 1129630
+Starting at:  Thu Jan 10 07:41:14 CET 2019
+Running on:   node002
+Running on:   1 nodes.
+Running on:   16 processors.
+Current working directory is /data/mdi0316/WORK/LAMMPS/VISCOSITY/EASY/JAN/FULL_Difference/1000_at/T_400
+Remote  working directory is /tmp/mdi0316_slurm_1129630
+slurmstepd: *** JOB 1129630 ON node002 CANCELLED AT 2019-01-10T07:48:37 ***

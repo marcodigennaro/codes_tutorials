@@ -1,0 +1,40 @@
+# 
+
+# global model settings
+
+units           real
+atom_style      full
+boundary        p p p
+pair_style      lj/cut 30 
+kspace_style    none
+bond_style      harmonic
+angle_style     harmonic
+
+read_data       read_file.txt
+
+velocity       	all zero linear
+
+molecule cat_hard cation_hard.data
+molecule cat_weak cation_weak.data
+
+fix mybondchange all bond/react stabilization no &
+  react rxn1 all 1 5 20 cat_weak cat_hard cation_map
+
+fix 1 all nve
+thermo_style custom step pe
+thermo 500
+variable ILpe equal pe
+# MD settings
+
+reset_timestep  0
+timestep        0.5
+fix 2 all print 1 "${ILpe}" file pe.dat 
+#dump 1 all image 500 image.*.jpg type 
+dump 2 all xyz 100 xyz.file 
+dump name all dcd 1 dump.dcd
+
+min_style cg
+minimize 0.0 1e-8 1000 10000
+
+run 1
+

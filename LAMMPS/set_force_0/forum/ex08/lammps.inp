@@ -1,0 +1,56 @@
+# 
+
+# global model settings
+
+units           real
+atom_style      full
+boundary        p p p
+pair_style      lj/cut 30 
+kspace_style    none
+bond_style      harmonic
+angle_style     harmonic
+
+read_data       read_file.txt
+
+thermo_style 	custom step pe
+variable 	ILpe equal pe
+
+molecule hard hard.txt
+molecule weak weak.txt
+
+compute 	1 all bond/local force
+dump		1 all local 1 c_fixed c_1 #[1] c_1[2] c_1[3]
+fix 		1 all print 1 "${radius} ${ILpe}" file pe_fixed.dat
+
+fix		my_fix all bond/react stabilization no react react23 all 1 0.0 3.0 weak hard map.txt
+fix 		2 all print 1 "${radius} ${ILpe}" file pe_varied.dat
+compute 	2 all bond/local dist engpot force
+dump		2 all local 100 c_varied  c_2[1] c_2[2] c_2[3]
+
+# MD settings
+
+reset_timestep  0
+timestep        0.1
+
+label radius_loop
+variable radius index   2.0 5.0 10.0 15.0 
+variable theta  equal   90
+variable phi    equal   90
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vzz equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal cos($(v_theta/180*PI))
+variable  xx equal v_radius*v_vxx
+variable  yy equal v_radius*v_vyy
+variable  zz equal v_radius*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+#minimize 0.0 1.0e-8 100 100
+
+run      1
+print rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+print "R ${radius}"
+
+next radius
+jump lammps.inp radius_loop
+

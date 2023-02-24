@@ -1,0 +1,40 @@
+LAMMPS (16 Mar 2018)
+# LAMMPS input file for testing of a two element system
+# Bradley Huddleston, July 2017
+
+# Standard MD setup, periodic boundaries
+units 		metal
+dimension	3
+boundary	p p p
+atom_style	atomic
+
+# Create atoms
+# Create simulation box
+lattice sc 4.0
+Lattice spacing in x,y,z = 4 4 4
+region whole block 0 10 0 10 0 10
+create_box 2 whole
+Created orthogonal box = (0 0 0) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+
+# Create Al atoms
+lattice sc 4.0
+Lattice spacing in x,y,z = 4 4 4
+create_atoms 1 region whole
+Created 1000 atoms
+  Time spent = 0.00109696 secs
+
+# Create Cu atoms
+lattice sc 4.0 origin 0.5 0.5 0.5
+Lattice spacing in x,y,z = 4 4 4
+create_atoms 2 region whole
+Created 1000 atoms
+  Time spent = 0.000424147 secs
+
+# Setup potential
+pair_style meam
+WARNING: The pair_style meam command is unsupported. Please use pair_style meam/c instead (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/MEAM/pair_meam.cpp:51)
+pair_coeff * * library.meam AlS CuS AlCu.meam AlS CuS
+Reading potential file library.meam with DATE: 2012-06-29
+ERROR: Keyword 0.1001762403E+01 in MEAM parameter file not recognized (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/MEAM/pair_meam.cpp:699)
+Last command: pair_coeff * * library.meam AlS CuS AlCu.meam AlS CuS

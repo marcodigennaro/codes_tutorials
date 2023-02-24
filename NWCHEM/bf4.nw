@@ -1,0 +1,20 @@
+start opt_bf4 
+title BF4
+geometry
+zmatrix units angstrom  
+B
+F  1  1.4167396
+F  1  1.4166777   2   109.4802233
+F  1  1.4166925   2   109.4771630  3  120.0120889
+F  1  1.4166912   2   109.4771479  3  -120.0120586
+end
+end
+basis
+ B library 6-311g*
+ F library 6-311g*
+end
+charge -1
+dft     
+ xc b3lyp
+end
+task dft optimize

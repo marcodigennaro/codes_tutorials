@@ -1,0 +1,170 @@
+LAMMPS (22 Aug 2018)
+# Sample LAMMPS input script for viscosity of liquid Ar
+
+units       real
+variable    T equal 86.4956
+variable    V equal vol
+variable    dt equal 4.0
+variable    p equal 400     # correlation length
+variable    s equal 5       # sample interval
+variable    d equal $p*$s   # dump interval
+variable    d equal 400*$s   
+variable    d equal 400*5   
+
+# convert from LAMMPS real units to SI
+
+variable    kB equal 1.3806504e-23    # [J/K/** Boltzmann
+variable    atm2Pa equal 101325.0
+variable    A2m equal 1.0e-10
+variable    fs2s equal 1.0e-15
+variable    convert equal ${atm2Pa}*${atm2Pa}*${fs2s}*${A2m}*${A2m}*${A2m}
+variable    convert equal 101325*${atm2Pa}*${fs2s}*${A2m}*${A2m}*${A2m}
+variable    convert equal 101325*101325*${fs2s}*${A2m}*${A2m}*${A2m}
+variable    convert equal 101325*101325*1e-15*${A2m}*${A2m}*${A2m}
+variable    convert equal 101325*101325*1e-15*1e-10*${A2m}*${A2m}
+variable    convert equal 101325*101325*1e-15*1e-10*1e-10*${A2m}
+variable    convert equal 101325*101325*1e-15*1e-10*1e-10*1e-10
+
+# setup problem
+
+dimension    3
+boundary     p p p
+lattice      fcc 5.376 orient x 1 0 0 orient y 0 1 0 orient z 0 0 1
+Lattice spacing in x,y,z = 5.376 5.376 5.376
+region       box block 0 4 0 4 0 4
+create_box   1 box
+Created orthogonal box = (0 0 0) to (21.504 21.504 21.504)
+  1 by 1 by 1 MPI processor grid
+create_atoms 1 box
+Created 256 atoms
+  Time spent = 0.000488997 secs
+mass         1 39.948
+pair_style   lj/cut 13.0
+pair_coeff   * * 0.2381 3.405
+timestep     ${dt}
+timestep     4
+thermo       $d
+thermo       2000
+
+dump positions all atom 100 filename.lammpstrj
+# equilibration and thermalization
+
+velocity     all create $T 102486 mom yes rot yes dist gaussian
+velocity     all create 86.4956 102486 mom yes rot yes dist gaussian
+fix          NVT all nvt temp $T $T 10 drag 0.2
+fix          NVT all nvt temp 86.4956 $T 10 drag 0.2
+fix          NVT all nvt temp 86.4956 86.4956 10 drag 0.2
+run          8000
+Neighbor list info ...
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 15
+  ghost atom cutoff = 15
+  binsize = 7.5, bins = 3 3 3
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 4.228 | 4.228 | 4.228 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0      86.4956   -505.75228            0   -440.00641   -1232.2554 
+    2000    86.836585   -443.60713            0   -377.60207    1102.0015 
+    4000    90.401137   -451.30005            0   -382.58555    829.04351 
+    6000     85.70304   -445.95474            0    -380.8113    1017.1957 
+    8000    91.445859   -445.24261            0   -375.73401    1061.6552 
+Loop time of 4.46739 on 1 procs for 8000 steps with 256 atoms
+
+Performance: 618.885 ns/day, 0.039 hours/ns, 1790.756 timesteps/s
+99.9% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 4.1492     | 4.1492     | 4.1492     |   0.0 | 92.88
+Neigh   | 0.14147    | 0.14147    | 0.14147    |   0.0 |  3.17
+Comm    | 0.10045    | 0.10045    | 0.10045    |   0.0 |  2.25
+Output  | 0.017164   | 0.017164   | 0.017164   |   0.0 |  0.38
+Modify  | 0.036163   | 0.036163   | 0.036163   |   0.0 |  0.81
+Other   |            | 0.0229     |            |       |  0.51
+
+Nlocal:    256 ave 256 max 256 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3173 ave 3173 max 3173 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    46367 ave 46367 max 46367 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 46367
+Ave neighs/atom = 181.121
+Neighbor list builds = 131
+Dangerous builds = 0
+
+# viscosity calculation, switch to NVE if desired
+
+#unfix       NVT
+#fix         NVE all nve
+
+reset_timestep 0
+variable     pxy equal pxy
+variable     pxz equal pxz
+variable     pyz equal pyz
+fix          SS all ave/correlate $s $p $d              v_pxy v_pxz v_pyz type auto file S0St.dat ave running
+fix          SS all ave/correlate 5 $p $d              v_pxy v_pxz v_pyz type auto file S0St.dat ave running
+fix          SS all ave/correlate 5 400 $d              v_pxy v_pxz v_pyz type auto file S0St.dat ave running
+fix          SS all ave/correlate 5 400 2000              v_pxy v_pxz v_pyz type auto file S0St.dat ave running
+variable     scale equal ${convert}/(${kB}*$T)*$V*$s*${dt}
+variable     scale equal 1.0266755625e-35/(${kB}*$T)*$V*$s*${dt}
+variable     scale equal 1.0266755625e-35/(1.3806504e-23*$T)*$V*$s*${dt}
+variable     scale equal 1.0266755625e-35/(1.3806504e-23*86.4956)*$V*$s*${dt}
+variable     scale equal 1.0266755625e-35/(1.3806504e-23*86.4956)*9943.923032064*$s*${dt}
+variable     scale equal 1.0266755625e-35/(1.3806504e-23*86.4956)*9943.923032064*5*${dt}
+variable     scale equal 1.0266755625e-35/(1.3806504e-23*86.4956)*9943.923032064*5*4
+variable     v11 equal trap(f_SS[3])*${scale}
+variable     v11 equal trap(f_SS[3])*1.70979182368186e-09
+variable     v22 equal trap(f_SS[4])*${scale}
+variable     v22 equal trap(f_SS[4])*1.70979182368186e-09
+variable     v33 equal trap(f_SS[5])*${scale}
+variable     v33 equal trap(f_SS[5])*1.70979182368186e-09
+thermo_style custom step temp press v_pxy v_pxz v_pyz v_v11 v_v22 v_v33
+run          10000
+Per MPI rank memory allocation (min/avg/max) = 4.23 | 4.23 | 4.23 Mbytes
+Step Temp Press v_pxy v_pxz v_pyz v_v11 v_v22 v_v33 
+       0    91.445859    1061.6552    3.9881888    16.686864   -129.27611 1.3597675e-08 2.3804698e-07 1.4287289e-05 
+    2000    94.916639    1026.8219    62.845118   -95.811545   -95.370886 0.00027527593 0.00058635594 2.9931749e-05 
+    4000    85.964671    1066.2802     104.0227    -132.8178   -13.298067 0.00029967435 0.0001545188 -7.9435129e-05 
+    6000    83.258229    909.48091    83.656028    40.443548     218.6203 0.00010945811 5.4795389e-05 -5.1396423e-05 
+    8000    92.330924    1103.4442    48.183114   -45.184479    53.321361 5.278889e-05 -1.0524991e-05 0.00027816761 
+   10000    83.901992    1128.4218    15.989915   -125.62556   -12.304839 6.7482192e-05 -3.318923e-06 0.00027775292 
+Loop time of 5.73347 on 1 procs for 10000 steps with 256 atoms
+
+Performance: 602.776 ns/day, 0.040 hours/ns, 1744.144 timesteps/s
+99.9% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 5.3043     | 5.3043     | 5.3043     |   0.0 | 92.51
+Neigh   | 0.18103    | 0.18103    | 0.18103    |   0.0 |  3.16
+Comm    | 0.12825    | 0.12825    | 0.12825    |   0.0 |  2.24
+Output  | 0.02213    | 0.02213    | 0.02213    |   0.0 |  0.39
+Modify  | 0.068158   | 0.068158   | 0.068158   |   0.0 |  1.19
+Other   |            | 0.02965    |            |       |  0.52
+
+Nlocal:    256 ave 256 max 256 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3173 ave 3173 max 3173 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    46343 ave 46343 max 46343 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 46343
+Ave neighs/atom = 181.027
+Neighbor list builds = 166
+Dangerous builds = 0
+variable     v equal (v_v11+v_v22+v_v33)/3.0
+variable     ndens equal count(all)/vol
+print        "average viscosity: $v [Pa.s] @ $T K, ${ndens} /A^3"
+average viscosity: 0.000113972063085792 [Pa.s] @ 86.4956 K, 0.0257443666020476 /A^3
+Total wall time: 0:00:10

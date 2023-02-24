@@ -1,0 +1,56 @@
+# fix gcmc example with fix shake
+
+# variables available on command line
+
+variable        lbox index 10.0
+
+# global model settings
+
+units           real
+atom_style      full
+boundary        p p p
+pair_style      lj/cut 30 
+pair_modify     mix geometric
+kspace_style    none
+bond_style      harmonic
+angle_style     harmonic
+
+# box, start molecules on simple cubic lattice
+
+#region          box1 block 0 ${lbox} 0 ${lbox} 0 ${lbox} units box
+#create_box      1 box1                      &
+#                bond/types 2                &
+#                extra/bond/per/atom 2       &
+#                angle/types 1               &
+#                extra/angle/per/atom 2      & 
+
+read_data       read_file.txt
+#molecule        sys1  sys1.txt
+#molecule        sys2  sys2.txt
+                        
+# rigid SPC/E water model
+
+pair_coeff      1 1 0.01 4
+pair_coeff      2 2 0.01 4
+pair_coeff      3 3 0.01 4
+pair_coeff      4 4 0.1 4
+
+fix 1 all nve
+thermo_style custom step pe
+thermo 0
+variable ILpe equal pe
+# MD settings
+
+velocity       	all zero linear
+reset_timestep  0
+timestep        0.0001
+fix 2 all print 1 "${ILpe}" file pe.dat 
+dump name all dcd 1 dump.dcd
+
+min_style cg
+minimize 0.0 1e-8 1000000 1000000
+
+#run 1000
+print ecco
+
+

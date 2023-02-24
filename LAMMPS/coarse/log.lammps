@@ -1,0 +1,3021 @@
+LAMMPS (16 Mar 2018)
+dimension 3
+boundary f f f
+atom_style full
+units metal			## ev, ang
+dielectric 2.0			##
+bond_style harmonic
+angle_style harmonic
+
+neighbor 2.0 bin
+neigh_modify delay 0 every 1 check yes
+
+## GEOMETRY
+region box1 block -40.0 40.0 -40.0 40.0 -40.0 40.0
+create_box 4 box1 bond/types 2 extra/bond/per/atom 2 angle/types 1 extra/angle/per/atom 1  ## num particles types etc...
+Created orthogonal box = (-40 -40 -40) to (40 40 40)
+  1 by 1 by 1 MPI processor grid
+
+mass    1  290.0 #anion ie bf4
+mass    2  130.0 #ring
+mass    3  130.0 #methyl
+mass    4  130.0 #ethyl
+
+create_atoms 1 single  10.0 0.0 0.0
+Created 1 atoms
+  Time spent = 2.71797e-05 secs
+create_atoms 2 single   0.0 0.0 0.0               #!!! Position of central particle (eg. ring)
+Created 1 atoms
+  Time spent = 0.00443196 secs
+create_atoms 3 single   0.0 5.0 0.0               #!!! Position of "side chain" 1
+Created 1 atoms
+  Time spent = 4.05312e-06 secs
+create_atoms 4 single   0.0 -3.535534 3.535534    #!!! Position of "side chain" 1
+Created 1 atoms
+  Time spent = 3.09944e-06 secs
+group anion type 1
+1 atoms in group anion
+group ring type 2
+1 atoms in group ring
+group methyl type 3
+1 atoms in group methyl
+group ethyl type 4
+1 atoms in group ethyl
+
+bond_coeff 1 200.0 5.0                   #!!! bond spring constant and equilibrium length [A] (length should be equal to the bond distance as defined above)
+bond_coeff 2 200.0 5.0                   #!!! bond
+angle_coeff 1 200.0 135.0                #!!! angle
+
+## DUMMY INTERACTION
+## we define this before creating bonds
+pair_style lj/cut 30.0
+pair_modify mix geometric
+################### properties to optimise with EASY
+pair_coeff 1 1   0.0013009 10.0 30.0      #!!!eps [eV] sigma [A] cutoff (=3*sigma) [A]
+pair_coeff 2 2   0.0013009  5.0 15.0
+pair_coeff 3 3   0.0013009  5.0 15.0
+pair_coeff 4 4   0.0013009  5.0 15.0
+
+create_bonds single/bond 1 2 3    # bond type1 btw p2 and p3
+  1 = max # of 1-2 neighbors
+  0 = max # of 1-3 neighbors
+  0 = max # of 1-4 neighbors
+  1 = max # of special neighbors
+create_bonds single/bond 2 2 4    # bond type2 btw p2 and p4
+  2 = max # of 1-2 neighbors
+  1 = max # of 1-3 neighbors
+  1 = max # of 1-4 neighbors
+  2 = max # of special neighbors
+create_bonds single/angle 1 3 2 4 # angle type1 btw p2, p3 and p4
+  2 = max # of 1-2 neighbors
+  1 = max # of 1-3 neighbors
+  1 = max # of 1-4 neighbors
+  2 = max # of special neighbors
+
+
+kspace_style msm 1.0e-6
+kspace_modify pressure/scalar yes
+set type 2 charge  1.0
+  1 settings made for charge
+set type 1 charge -1.0
+  1 settings made for charge
+
+## REAL INTERACTION
+## after bonds are created
+pair_style lj/cut/coul/msm 30.0
+pair_modify mix geometric
+################### properties to optimise with EASY  (Just repeat the lines from above)
+pair_coeff 1 1   0.0013009 10.0 30.0
+pair_coeff 2 2   0.0013009  5.0 15.0
+pair_coeff 3 3   0.0013009  5.0 15.0
+pair_coeff 4 4   0.0013009  5.0 15.0
+
+########################################
+
+
+thermo_style	custom step temp pe ke ebond press density
+thermo       100
+
+#write_data solid.data pair ij
+
+#variable  ILdens equal density
+variable  anx equal x[1]
+variable  any equal y[1]
+variable  anz equal z[1]
+variable  ILdist equal sqrt(x[1]*x[1]+y[1]*y[1]+z[1]*z[1])   #!!!Distance from the origin (should correcpond to the N position from EMIM)
+variable  ILtemp equal temp
+variable  ILpe equal pe
+variable  ILke equal ke
+variable  ILpr equal press
+
+##################################
+velocity  all zero linear
+reset_timestep  0
+fix	  333 all print 1 "${ILdist} ${theta} ${phi} ${anx} ${any} ${anz} ${ILpe}" file density.dat screen no
+#dump 1 all dcd 1 minim.dcd
+
+variable  dist   equal  4.0   #!!!minimum radius for radial scanning [Angstrom]
+timestep	.1            # !!! dt per step (Velocity is 1.0)
+##################################
+#  Loop for angles
+##################################
+label theta_loop
+variable j loop 0 18
+variable theta equal $j*10
+variable theta equal 0*10
+
+label phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 0*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(0)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(0)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y 0 z ${zz}
+set atom 1 x 0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 0 ${vzz}
+fix      1 anion move linear 0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 152.648
+  ghost atom cutoff = 152.648
+  binsize = 76.324, bins = 2 2 2
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut/coul/msm, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+       0            0    21.813081            0  3.53946e-12     296.7196 0.0022054033 
+     100    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+     200    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+     300    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+     350    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.9679 on 1 procs for 350 steps with 4 atoms
+
+Performance: 275.715 ns/day, 0.087 hours/ns, 31.911 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.001312   | 0.001312   | 0.001312   |   0.0 |  0.01
+Bond    | 0.00036931 | 0.00036931 | 0.00036931 |   0.0 |  0.00
+Kspace  | 10.959     | 10.959     | 10.959     |   0.0 | 99.92
+Neigh   | 0.00022483 | 0.00022483 | 0.00022483 |   0.0 |  0.00
+Comm    | 0.00012541 | 0.00012541 | 0.00012541 |   0.0 |  0.00
+Output  | 6.6996e-05 | 6.6996e-05 | 6.6996e-05 |   0.0 |  0.00
+Modify  | 0.0064325  | 0.0064325  | 0.0064325  |   0.0 |  0.06
+Other   |            | 0.0003045  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 1*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(0.1745329251994329478)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(0.1745329251994329478)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y 0 z ${zz}
+set atom 1 x 0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 0 ${vzz}
+fix      1 anion move linear 0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+     350    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+     400    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+     500    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+     600    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+     700    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.0127 on 1 procs for 350 steps with 4 atoms
+
+Performance: 274.593 ns/day, 0.087 hours/ns, 31.782 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0010762  | 0.0010762  | 0.0010762  |   0.0 |  0.01
+Bond    | 0.00030541 | 0.00030541 | 0.00030541 |   0.0 |  0.00
+Kspace  | 11.005     | 11.005     | 11.005     |   0.0 | 99.93
+Neigh   | 0.00022268 | 0.00022268 | 0.00022268 |   0.0 |  0.00
+Comm    | 0.0001092  | 0.0001092  | 0.0001092  |   0.0 |  0.00
+Output  | 6.485e-05  | 6.485e-05  | 6.485e-05  |   0.0 |  0.00
+Modify  | 0.0058198  | 0.0058198  | 0.0058198  |   0.0 |  0.05
+Other   |            | 0.0002687  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 2*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(0.34906585039886589561)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(0.34906585039886589561)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y 0 z ${zz}
+set atom 1 x 0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 0 ${vzz}
+fix      1 anion move linear 0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+     700    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+     800    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+     900    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+    1000    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+    1050    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.0931 on 1 procs for 350 steps with 4 atoms
+
+Performance: 272.601 ns/day, 0.088 hours/ns, 31.551 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0013456  | 0.0013456  | 0.0013456  |   0.0 |  0.01
+Bond    | 0.00055432 | 0.00055432 | 0.00055432 |   0.0 |  0.00
+Kspace  | 11.082     | 11.082     | 11.082     |   0.0 | 99.90
+Neigh   | 0.00023675 | 0.00023675 | 0.00023675 |   0.0 |  0.00
+Comm    | 0.00020099 | 0.00020099 | 0.00020099 |   0.0 |  0.00
+Output  | 6.8903e-05 | 6.8903e-05 | 6.8903e-05 |   0.0 |  0.00
+Modify  | 0.0087419  | 0.0087419  | 0.0087419  |   0.0 |  0.08
+Other   |            | 0.0004027  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 3*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(0.52359877559829881566)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(0.52359877559829881566)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y 0 z ${zz}
+set atom 1 x 0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 0 ${vzz}
+fix      1 anion move linear 0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    1050    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    1100    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+    1200    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+    1300    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+    1400    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.015 on 1 procs for 350 steps with 4 atoms
+
+Performance: 274.534 ns/day, 0.087 hours/ns, 31.775 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0012376  | 0.0012376  | 0.0012376  |   0.0 |  0.01
+Bond    | 0.00049782 | 0.00049782 | 0.00049782 |   0.0 |  0.00
+Kspace  | 11.004     | 11.004     | 11.004     |   0.0 | 99.90
+Neigh   | 0.00023079 | 0.00023079 | 0.00023079 |   0.0 |  0.00
+Comm    | 0.00015783 | 0.00015783 | 0.00015783 |   0.0 |  0.00
+Output  | 6.485e-05  | 6.485e-05  | 6.485e-05  |   0.0 |  0.00
+Modify  | 0.0081613  | 0.0081613  | 0.0081613  |   0.0 |  0.07
+Other   |            | 0.0003989  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 4*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(0.69813170079773179122)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(0.69813170079773179122)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y 0 z ${zz}
+set atom 1 x 0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 0 ${vzz}
+fix      1 anion move linear 0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    1400    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    1500    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+    1600    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+    1700    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+    1750    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.1074 on 1 procs for 350 steps with 4 atoms
+
+Performance: 272.250 ns/day, 0.088 hours/ns, 31.510 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0011742  | 0.0011742  | 0.0011742  |   0.0 |  0.01
+Bond    | 0.0004313  | 0.0004313  | 0.0004313  |   0.0 |  0.00
+Kspace  | 11.097     | 11.097     | 11.097     |   0.0 | 99.91
+Neigh   | 0.00024009 | 0.00024009 | 0.00024009 |   0.0 |  0.00
+Comm    | 0.00017166 | 0.00017166 | 0.00017166 |   0.0 |  0.00
+Output  | 6.175e-05  | 6.175e-05  | 6.175e-05  |   0.0 |  0.00
+Modify  | 0.0078621  | 0.0078621  | 0.0078621  |   0.0 |  0.07
+Other   |            | 0.0003803  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 5*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(0.87266462599716476678)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(0.87266462599716476678)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y 0 z ${zz}
+set atom 1 x 0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 0 ${vzz}
+fix      1 anion move linear 0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    1750    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    1800    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+    1900    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+    2000    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+    2100    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.146 on 1 procs for 350 steps with 4 atoms
+
+Performance: 271.309 ns/day, 0.088 hours/ns, 31.401 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0014646  | 0.0014646  | 0.0014646  |   0.0 |  0.01
+Bond    | 0.00073433 | 0.00073433 | 0.00073433 |   0.0 |  0.01
+Kspace  | 11.132     | 11.132     | 11.132     |   0.0 | 99.87
+Neigh   | 0.00024557 | 0.00024557 | 0.00024557 |   0.0 |  0.00
+Comm    | 0.00024819 | 0.00024819 | 0.00024819 |   0.0 |  0.00
+Output  | 6.5088e-05 | 6.5088e-05 | 6.5088e-05 |   0.0 |  0.00
+Modify  | 0.010792   | 0.010792   | 0.010792   |   0.0 |  0.10
+Other   |            | 0.0005465  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 6*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(1.0471975511965976313)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(1.0471975511965976313)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y 0 z ${zz}
+set atom 1 x 0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 0 ${vzz}
+fix      1 anion move linear 0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    2100    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    2200    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+    2300    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+    2400    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+    2450    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.2996 on 1 procs for 350 steps with 4 atoms
+
+Performance: 267.619 ns/day, 0.090 hours/ns, 30.974 timesteps/s
+99.9% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0012908  | 0.0012908  | 0.0012908  |   0.0 |  0.01
+Bond    | 0.00056791 | 0.00056791 | 0.00056791 |   0.0 |  0.01
+Kspace  | 11.288     | 11.288     | 11.288     |   0.0 | 99.90
+Neigh   | 0.00024366 | 0.00024366 | 0.00024366 |   0.0 |  0.00
+Comm    | 0.00020456 | 0.00020456 | 0.00020456 |   0.0 |  0.00
+Output  | 6.485e-05  | 6.485e-05  | 6.485e-05  |   0.0 |  0.00
+Modify  | 0.0088587  | 0.0088587  | 0.0088587  |   0.0 |  0.08
+Other   |            | 0.000443   |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 7*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(1.2217304763960306069)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(1.2217304763960306069)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y 0 z ${zz}
+set atom 1 x 0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 0 ${vzz}
+fix      1 anion move linear 0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    2450    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    2500    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+    2600    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+    2700    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+    2800    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.0218 on 1 procs for 350 steps with 4 atoms
+
+Performance: 274.365 ns/day, 0.087 hours/ns, 31.755 timesteps/s
+99.9% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.001241   | 0.001241   | 0.001241   |   0.0 |  0.01
+Bond    | 0.00046206 | 0.00046206 | 0.00046206 |   0.0 |  0.00
+Kspace  | 11.011     | 11.011     | 11.011     |   0.0 | 99.90
+Neigh   | 0.00023866 | 0.00023866 | 0.00023866 |   0.0 |  0.00
+Comm    | 0.00017548 | 0.00017548 | 0.00017548 |   0.0 |  0.00
+Output  | 6.628e-05  | 6.628e-05  | 6.628e-05  |   0.0 |  0.00
+Modify  | 0.0081594  | 0.0081594  | 0.0081594  |   0.0 |  0.07
+Other   |            | 0.0003741  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 8*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(1.3962634015954635824)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(1.3962634015954635824)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y 0 z ${zz}
+set atom 1 x 0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 0 ${vzz}
+fix      1 anion move linear 0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    2800    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    2900    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+    3000    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+    3100    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+    3150    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.1444 on 1 procs for 350 steps with 4 atoms
+
+Performance: 271.347 ns/day, 0.088 hours/ns, 31.406 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0012746  | 0.0012746  | 0.0012746  |   0.0 |  0.01
+Bond    | 0.00050402 | 0.00050402 | 0.00050402 |   0.0 |  0.00
+Kspace  | 11.133     | 11.133     | 11.133     |   0.0 | 99.90
+Neigh   | 0.00025535 | 0.00025535 | 0.00025535 |   0.0 |  0.00
+Comm    | 0.00018382 | 0.00018382 | 0.00018382 |   0.0 |  0.00
+Output  | 6.8188e-05 | 6.8188e-05 | 6.8188e-05 |   0.0 |  0.00
+Modify  | 0.0085778  | 0.0085778  | 0.0085778  |   0.0 |  0.08
+Other   |            | 0.0004241  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 9*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(1.570796326794896558)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(1.570796326794896558)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y 0 z ${zz}
+set atom 1 x 0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 0 ${vzz}
+fix      1 anion move linear 0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    3150    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    3200    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+    3300    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+    3400    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+    3500    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.9746 on 1 procs for 350 steps with 4 atoms
+
+Performance: 275.545 ns/day, 0.087 hours/ns, 31.892 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0011842  | 0.0011842  | 0.0011842  |   0.0 |  0.01
+Bond    | 0.00043392 | 0.00043392 | 0.00043392 |   0.0 |  0.00
+Kspace  | 10.964     | 10.964     | 10.964     |   0.0 | 99.91
+Neigh   | 0.00023866 | 0.00023866 | 0.00023866 |   0.0 |  0.00
+Comm    | 0.00016856 | 0.00016856 | 0.00016856 |   0.0 |  0.00
+Output  | 6.5088e-05 | 6.5088e-05 | 6.5088e-05 |   0.0 |  0.00
+Modify  | 0.0077248  | 0.0077248  | 0.0077248  |   0.0 |  0.07
+Other   |            | 0.0003786  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 10*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(1.7453292519943295336)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(1.7453292519943295336)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y 0 z ${zz}
+set atom 1 x -0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 0 ${vzz}
+fix      1 anion move linear -0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    3500    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    3600    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+    3700    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+    3800    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+    3850    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.0924 on 1 procs for 350 steps with 4 atoms
+
+Performance: 272.619 ns/day, 0.088 hours/ns, 31.553 timesteps/s
+99.9% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0013647  | 0.0013647  | 0.0013647  |   0.0 |  0.01
+Bond    | 0.00058842 | 0.00058842 | 0.00058842 |   0.0 |  0.01
+Kspace  | 11.08      | 11.08      | 11.08      |   0.0 | 99.89
+Neigh   | 0.00024533 | 0.00024533 | 0.00024533 |   0.0 |  0.00
+Comm    | 0.0002203  | 0.0002203  | 0.0002203  |   0.0 |  0.00
+Output  | 6.7234e-05 | 6.7234e-05 | 6.7234e-05 |   0.0 |  0.00
+Modify  | 0.0096612  | 0.0096612  | 0.0096612  |   0.0 |  0.09
+Other   |            | 0.000474   |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 11*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(1.9198621771937625091)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(1.9198621771937625091)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y 0 z ${zz}
+set atom 1 x -0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 0 ${vzz}
+fix      1 anion move linear -0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    3850    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    3900    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+    4000    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+    4100    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+    4200    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.1116 on 1 procs for 350 steps with 4 atoms
+
+Performance: 272.147 ns/day, 0.088 hours/ns, 31.499 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0013819  | 0.0013819  | 0.0013819  |   0.0 |  0.01
+Bond    | 0.00056314 | 0.00056314 | 0.00056314 |   0.0 |  0.01
+Kspace  | 11.099     | 11.099     | 11.099     |   0.0 | 99.89
+Neigh   | 0.0002408  | 0.0002408  | 0.0002408  |   0.0 |  0.00
+Comm    | 0.00022364 | 0.00022364 | 0.00022364 |   0.0 |  0.00
+Output  | 6.5327e-05 | 6.5327e-05 | 6.5327e-05 |   0.0 |  0.00
+Modify  | 0.0092652  | 0.0092652  | 0.0092652  |   0.0 |  0.08
+Other   |            | 0.0004857  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 12*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(2.0943951023931952626)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(2.0943951023931952626)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y 0 z ${zz}
+set atom 1 x -0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 0 ${vzz}
+fix      1 anion move linear -0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    4200    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    4300    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+    4400    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+    4500    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+    4550    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.068 on 1 procs for 350 steps with 4 atoms
+
+Performance: 273.221 ns/day, 0.088 hours/ns, 31.623 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0012314  | 0.0012314  | 0.0012314  |   0.0 |  0.01
+Bond    | 0.00047016 | 0.00047016 | 0.00047016 |   0.0 |  0.00
+Kspace  | 11.057     | 11.057     | 11.057     |   0.0 | 99.90
+Neigh   | 0.00024652 | 0.00024652 | 0.00024652 |   0.0 |  0.00
+Comm    | 0.00018215 | 0.00018215 | 0.00018215 |   0.0 |  0.00
+Output  | 7.0095e-05 | 7.0095e-05 | 7.0095e-05 |   0.0 |  0.00
+Modify  | 0.0079465  | 0.0079465  | 0.0079465  |   0.0 |  0.07
+Other   |            | 0.0003755  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 13*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(2.2689280275926284602)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(2.2689280275926284602)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y 0 z ${zz}
+set atom 1 x -0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 0 ${vzz}
+fix      1 anion move linear -0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    4550    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    4600    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+    4700    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+    4800    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+    4900    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.9885 on 1 procs for 350 steps with 4 atoms
+
+Performance: 275.197 ns/day, 0.087 hours/ns, 31.851 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0011511  | 0.0011511  | 0.0011511  |   0.0 |  0.01
+Bond    | 0.0004158  | 0.0004158  | 0.0004158  |   0.0 |  0.00
+Kspace  | 10.979     | 10.979     | 10.979     |   0.0 | 99.91
+Neigh   | 0.00023365 | 0.00023365 | 0.00023365 |   0.0 |  0.00
+Comm    | 0.00018167 | 0.00018167 | 0.00018167 |   0.0 |  0.00
+Output  | 6.485e-05  | 6.485e-05  | 6.485e-05  |   0.0 |  0.00
+Modify  | 0.00752    | 0.00752    | 0.00752    |   0.0 |  0.07
+Other   |            | 0.0003614  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 14*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(2.4434609527920612138)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(2.4434609527920612138)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y 0 z ${zz}
+set atom 1 x -0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 0 ${vzz}
+fix      1 anion move linear -0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    4900    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    5000    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+    5100    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+    5200    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+    5250    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.9903 on 1 procs for 350 steps with 4 atoms
+
+Performance: 275.153 ns/day, 0.087 hours/ns, 31.846 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0010891  | 0.0010891  | 0.0010891  |   0.0 |  0.01
+Bond    | 0.00036168 | 0.00036168 | 0.00036168 |   0.0 |  0.00
+Kspace  | 10.981     | 10.981     | 10.981     |   0.0 | 99.92
+Neigh   | 0.00022697 | 0.00022697 | 0.00022697 |   0.0 |  0.00
+Comm    | 0.00012875 | 0.00012875 | 0.00012875 |   0.0 |  0.00
+Output  | 6.4611e-05 | 6.4611e-05 | 6.4611e-05 |   0.0 |  0.00
+Modify  | 0.0067697  | 0.0067697  | 0.0067697  |   0.0 |  0.06
+Other   |            | 0.0002971  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 15*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(2.6179938779914944114)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(2.6179938779914944114)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y 0 z ${zz}
+set atom 1 x -0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 0 ${vzz}
+fix      1 anion move linear -0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    5250    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    5300    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+    5400    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+    5500    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+    5600    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.1775 on 1 procs for 350 steps with 4 atoms
+
+Performance: 270.543 ns/day, 0.089 hours/ns, 31.313 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0011268  | 0.0011268  | 0.0011268  |   0.0 |  0.01
+Bond    | 0.00034308 | 0.00034308 | 0.00034308 |   0.0 |  0.00
+Kspace  | 11.169     | 11.169     | 11.169     |   0.0 | 99.92
+Neigh   | 0.0002284  | 0.0002284  | 0.0002284  |   0.0 |  0.00
+Comm    | 0.00013947 | 0.00013947 | 0.00013947 |   0.0 |  0.00
+Output  | 6.175e-05  | 6.175e-05  | 6.175e-05  |   0.0 |  0.00
+Modify  | 0.006784   | 0.006784   | 0.006784   |   0.0 |  0.06
+Other   |            | 0.0003045  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 16*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(2.7925268031909271649)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(2.7925268031909271649)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y 0 z ${zz}
+set atom 1 x -0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 0 ${vzz}
+fix      1 anion move linear -0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    5600    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    5700    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+    5800    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+    5900    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+    5950    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.1457 on 1 procs for 350 steps with 4 atoms
+
+Performance: 271.316 ns/day, 0.088 hours/ns, 31.402 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0011585  | 0.0011585  | 0.0011585  |   0.0 |  0.01
+Bond    | 0.00036669 | 0.00036669 | 0.00036669 |   0.0 |  0.00
+Kspace  | 11.136     | 11.136     | 11.136     |   0.0 | 99.91
+Neigh   | 0.00023174 | 0.00023174 | 0.00023174 |   0.0 |  0.00
+Comm    | 0.00014663 | 0.00014663 | 0.00014663 |   0.0 |  0.00
+Output  | 8.2254e-05 | 8.2254e-05 | 8.2254e-05 |   0.0 |  0.00
+Modify  | 0.0071499  | 0.0071499  | 0.0071499  |   0.0 |  0.06
+Other   |            | 0.000339   |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 17*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(2.9670597283903599184)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(2.9670597283903599184)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y 0 z ${zz}
+set atom 1 x -0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 0 ${vzz}
+fix      1 anion move linear -0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    5950    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    6000    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+    6100    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+    6200    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+    6300    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.1249 on 1 procs for 350 steps with 4 atoms
+
+Performance: 271.823 ns/day, 0.088 hours/ns, 31.461 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.001132   | 0.001132   | 0.001132   |   0.0 |  0.01
+Bond    | 0.00032473 | 0.00032473 | 0.00032473 |   0.0 |  0.00
+Kspace  | 11.116     | 11.116     | 11.116     |   0.0 | 99.92
+Neigh   | 0.00021601 | 0.00021601 | 0.00021601 |   0.0 |  0.00
+Comm    | 0.00012112 | 0.00012112 | 0.00012112 |   0.0 |  0.00
+Output  | 6.4135e-05 | 6.4135e-05 | 6.4135e-05 |   0.0 |  0.00
+Modify  | 0.0064142  | 0.0064142  | 0.0064142  |   0.0 |  0.06
+Other   |            | 0.0002799  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 18*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(3.141592653589793116)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(3.141592653589793116)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y 0 z ${zz}
+set atom 1 x -0 y 0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 0 ${vzz}
+fix      1 anion move linear -0 0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    6300    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    6400    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+    6500    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+    6600    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+    6650    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.0381 on 1 procs for 350 steps with 4 atoms
+
+Performance: 273.960 ns/day, 0.088 hours/ns, 31.708 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0011547  | 0.0011547  | 0.0011547  |   0.0 |  0.01
+Bond    | 0.00036383 | 0.00036383 | 0.00036383 |   0.0 |  0.00
+Kspace  | 11.029     | 11.029     | 11.029     |   0.0 | 99.92
+Neigh   | 0.00023079 | 0.00023079 | 0.00023079 |   0.0 |  0.00
+Comm    | 0.00013375 | 0.00013375 | 0.00013375 |   0.0 |  0.00
+Output  | 6.2943e-05 | 6.2943e-05 | 6.2943e-05 |   0.0 |  0.00
+Modify  | 0.0067689  | 0.0067689  | 0.0067689  |   0.0 |  0.06
+Other   |            | 0.0002954  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 19*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(3.3161255787892263136)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(3.3161255787892263136)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y -0 z ${zz}
+set atom 1 x -0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 -0 ${vzz}
+fix      1 anion move linear -0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    6650    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    6700    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+    6800    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+    6900    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+    7000    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.1693 on 1 procs for 350 steps with 4 atoms
+
+Performance: 270.742 ns/day, 0.089 hours/ns, 31.336 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0011284  | 0.0011284  | 0.0011284  |   0.0 |  0.01
+Bond    | 0.00034618 | 0.00034618 | 0.00034618 |   0.0 |  0.00
+Kspace  | 11.16      | 11.16      | 11.16      |   0.0 | 99.92
+Neigh   | 0.00024366 | 0.00024366 | 0.00024366 |   0.0 |  0.00
+Comm    | 0.00012112 | 0.00012112 | 0.00012112 |   0.0 |  0.00
+Output  | 6.3181e-05 | 6.3181e-05 | 6.3181e-05 |   0.0 |  0.00
+Modify  | 0.0067403  | 0.0067403  | 0.0067403  |   0.0 |  0.06
+Other   |            | 0.000303   |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 20*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(3.4906585039886590671)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(3.4906585039886590671)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y -0 z ${zz}
+set atom 1 x -0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 -0 ${vzz}
+fix      1 anion move linear -0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    7000    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    7100    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+    7200    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+    7300    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+    7350    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.8925 on 1 procs for 350 steps with 4 atoms
+
+Performance: 277.621 ns/day, 0.086 hours/ns, 32.132 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00099254 | 0.00099254 | 0.00099254 |   0.0 |  0.01
+Bond    | 0.00028896 | 0.00028896 | 0.00028896 |   0.0 |  0.00
+Kspace  | 10.885     | 10.885     | 10.885     |   0.0 | 99.93
+Neigh   | 0.00016642 | 0.00016642 | 0.00016642 |   0.0 |  0.00
+Comm    | 9.9897e-05 | 9.9897e-05 | 9.9897e-05 |   0.0 |  0.00
+Output  | 6.1989e-05 | 6.1989e-05 | 6.1989e-05 |   0.0 |  0.00
+Modify  | 0.0059955  | 0.0059955  | 0.0059955  |   0.0 |  0.06
+Other   |            | 0.0002759  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 21*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(3.6651914291880922647)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(3.6651914291880922647)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y -0 z ${zz}
+set atom 1 x -0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 -0 ${vzz}
+fix      1 anion move linear -0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    7350    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    7400    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+    7500    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+    7600    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+    7700    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.9813 on 1 procs for 350 steps with 4 atoms
+
+Performance: 275.378 ns/day, 0.087 hours/ns, 31.873 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0010483  | 0.0010483  | 0.0010483  |   0.0 |  0.01
+Bond    | 0.00032139 | 0.00032139 | 0.00032139 |   0.0 |  0.00
+Kspace  | 10.973     | 10.973     | 10.973     |   0.0 | 99.92
+Neigh   | 0.0001657  | 0.0001657  | 0.0001657  |   0.0 |  0.00
+Comm    | 9.8228e-05 | 9.8228e-05 | 9.8228e-05 |   0.0 |  0.00
+Output  | 7.6056e-05 | 7.6056e-05 | 7.6056e-05 |   0.0 |  0.00
+Modify  | 0.006284   | 0.006284   | 0.006284   |   0.0 |  0.06
+Other   |            | 0.0002615  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 22*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(3.8397243543875250182)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(3.8397243543875250182)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y -0 z ${zz}
+set atom 1 x -0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 -0 ${vzz}
+fix      1 anion move linear -0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    7700    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    7800    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+    7900    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+    8000    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+    8050    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.8989 on 1 procs for 350 steps with 4 atoms
+
+Performance: 277.459 ns/day, 0.086 hours/ns, 32.113 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00098181 | 0.00098181 | 0.00098181 |   0.0 |  0.01
+Bond    | 0.00031471 | 0.00031471 | 0.00031471 |   0.0 |  0.00
+Kspace  | 10.891     | 10.891     | 10.891     |   0.0 | 99.93
+Neigh   | 0.00016952 | 0.00016952 | 0.00016952 |   0.0 |  0.00
+Comm    | 0.00010085 | 0.00010085 | 0.00010085 |   0.0 |  0.00
+Output  | 6.2943e-05 | 6.2943e-05 | 6.2943e-05 |   0.0 |  0.00
+Modify  | 0.005903   | 0.005903   | 0.005903   |   0.0 |  0.05
+Other   |            | 0.0002866  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 23*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(4.0142572795869577718)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(4.0142572795869577718)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y -0 z ${zz}
+set atom 1 x -0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 -0 ${vzz}
+fix      1 anion move linear -0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    8050    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    8100    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+    8200    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+    8300    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+    8400    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.8897 on 1 procs for 350 steps with 4 atoms
+
+Performance: 277.694 ns/day, 0.086 hours/ns, 32.140 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00097418 | 0.00097418 | 0.00097418 |   0.0 |  0.01
+Bond    | 0.00025749 | 0.00025749 | 0.00025749 |   0.0 |  0.00
+Kspace  | 10.882     | 10.882     | 10.882     |   0.0 | 99.93
+Neigh   | 0.0001452  | 0.0001452  | 0.0001452  |   0.0 |  0.00
+Comm    | 0.00011826 | 0.00011826 | 0.00011826 |   0.0 |  0.00
+Output  | 6.1035e-05 | 6.1035e-05 | 6.1035e-05 |   0.0 |  0.00
+Modify  | 0.0057507  | 0.0057507  | 0.0057507  |   0.0 |  0.05
+Other   |            | 0.0002382  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 24*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(4.1887902047863905253)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(4.1887902047863905253)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y -0 z ${zz}
+set atom 1 x -0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 -0 ${vzz}
+fix      1 anion move linear -0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    8400    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    8500    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+    8600    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+    8700    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+    8750    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.1288 on 1 procs for 350 steps with 4 atoms
+
+Performance: 271.727 ns/day, 0.088 hours/ns, 31.450 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00095677 | 0.00095677 | 0.00095677 |   0.0 |  0.01
+Bond    | 0.00027466 | 0.00027466 | 0.00027466 |   0.0 |  0.00
+Kspace  | 11.121     | 11.121     | 11.121     |   0.0 | 99.93
+Neigh   | 0.00015187 | 0.00015187 | 0.00015187 |   0.0 |  0.00
+Comm    | 9.4414e-05 | 9.4414e-05 | 9.4414e-05 |   0.0 |  0.00
+Output  | 6.4135e-05 | 6.4135e-05 | 6.4135e-05 |   0.0 |  0.00
+Modify  | 0.0057294  | 0.0057294  | 0.0057294  |   0.0 |  0.05
+Other   |            | 0.0002573  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 25*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(4.3633231299858232788)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(4.3633231299858232788)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y -0 z ${zz}
+set atom 1 x -0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 -0 ${vzz}
+fix      1 anion move linear -0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    8750    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    8800    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+    8900    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+    9000    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+    9100    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.8844 on 1 procs for 350 steps with 4 atoms
+
+Performance: 277.830 ns/day, 0.086 hours/ns, 32.156 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0010045  | 0.0010045  | 0.0010045  |   0.0 |  0.01
+Bond    | 0.0003016  | 0.0003016  | 0.0003016  |   0.0 |  0.00
+Kspace  | 10.877     | 10.877     | 10.877     |   0.0 | 99.93
+Neigh   | 0.00014496 | 0.00014496 | 0.00014496 |   0.0 |  0.00
+Comm    | 8.3923e-05 | 8.3923e-05 | 8.3923e-05 |   0.0 |  0.00
+Output  | 6.0797e-05 | 6.0797e-05 | 6.0797e-05 |   0.0 |  0.00
+Modify  | 0.005825   | 0.005825   | 0.005825   |   0.0 |  0.05
+Other   |            | 0.0002415  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 26*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(4.5378560551852569205)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(4.5378560551852569205)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y -0 z ${zz}
+set atom 1 x -0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 -0 ${vzz}
+fix      1 anion move linear -0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    9100    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    9200    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+    9300    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+    9400    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+    9450    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.8841 on 1 procs for 350 steps with 4 atoms
+
+Performance: 277.837 ns/day, 0.086 hours/ns, 32.157 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00096631 | 0.00096631 | 0.00096631 |   0.0 |  0.01
+Bond    | 0.0003016  | 0.0003016  | 0.0003016  |   0.0 |  0.00
+Kspace  | 10.876     | 10.876     | 10.876     |   0.0 | 99.93
+Neigh   | 0.00015306 | 0.00015306 | 0.00015306 |   0.0 |  0.00
+Comm    | 9.799e-05  | 9.799e-05  | 9.799e-05  |   0.0 |  0.00
+Output  | 5.7697e-05 | 5.7697e-05 | 5.7697e-05 |   0.0 |  0.00
+Modify  | 0.0059893  | 0.0059893  | 0.0059893  |   0.0 |  0.06
+Other   |            | 0.0002489  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 27*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(4.712388980384689674)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(4.712388980384689674)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x -0 y ${yy} z ${zz}
+set atom 1 x -0 y -0 z ${zz}
+set atom 1 x -0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear -0 ${vyy} ${vzz}
+fix      1 anion move linear -0 -0 ${vzz}
+fix      1 anion move linear -0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    9450    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    9500    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+    9600    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+    9700    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+    9800    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.8913 on 1 procs for 350 steps with 4 atoms
+
+Performance: 277.652 ns/day, 0.086 hours/ns, 32.136 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00097513 | 0.00097513 | 0.00097513 |   0.0 |  0.01
+Bond    | 0.00027919 | 0.00027919 | 0.00027919 |   0.0 |  0.00
+Kspace  | 10.884     | 10.884     | 10.884     |   0.0 | 99.93
+Neigh   | 0.00015092 | 0.00015092 | 0.00015092 |   0.0 |  0.00
+Comm    | 9.9421e-05 | 9.9421e-05 | 9.9421e-05 |   0.0 |  0.00
+Output  | 5.8413e-05 | 5.8413e-05 | 5.8413e-05 |   0.0 |  0.00
+Modify  | 0.005784   | 0.005784   | 0.005784   |   0.0 |  0.05
+Other   |            | 0.0002732  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 28*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(4.8869219055841224275)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(4.8869219055841224275)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y -0 z ${zz}
+set atom 1 x 0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 -0 ${vzz}
+fix      1 anion move linear 0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+    9800    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+    9900    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+   10000    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+   10100    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+   10150    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.9025 on 1 procs for 350 steps with 4 atoms
+
+Performance: 277.368 ns/day, 0.087 hours/ns, 32.103 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0010183  | 0.0010183  | 0.0010183  |   0.0 |  0.01
+Bond    | 0.00030708 | 0.00030708 | 0.00030708 |   0.0 |  0.00
+Kspace  | 10.895     | 10.895     | 10.895     |   0.0 | 99.93
+Neigh   | 0.00016093 | 0.00016093 | 0.00016093 |   0.0 |  0.00
+Comm    | 0.00010824 | 0.00010824 | 0.00010824 |   0.0 |  0.00
+Output  | 5.9843e-05 | 5.9843e-05 | 5.9843e-05 |   0.0 |  0.00
+Modify  | 0.0059121  | 0.0059121  | 0.0059121  |   0.0 |  0.05
+Other   |            | 0.0002449  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 29*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(5.0614548307835560692)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(5.0614548307835560692)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y -0 z ${zz}
+set atom 1 x 0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 -0 ${vzz}
+fix      1 anion move linear 0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+   10150    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+   10200    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+   10300    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+   10400    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+   10500    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.8965 on 1 procs for 350 steps with 4 atoms
+
+Performance: 277.521 ns/day, 0.086 hours/ns, 32.120 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0010157  | 0.0010157  | 0.0010157  |   0.0 |  0.01
+Bond    | 0.00028968 | 0.00028968 | 0.00028968 |   0.0 |  0.00
+Kspace  | 10.889     | 10.889     | 10.889     |   0.0 | 99.93
+Neigh   | 0.00017071 | 0.00017071 | 0.00017071 |   0.0 |  0.00
+Comm    | 9.346e-05  | 9.346e-05  | 9.346e-05  |   0.0 |  0.00
+Output  | 6.1035e-05 | 6.1035e-05 | 6.1035e-05 |   0.0 |  0.00
+Modify  | 0.0060327  | 0.0060327  | 0.0060327  |   0.0 |  0.06
+Other   |            | 0.0002785  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 30*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(5.2359877559829888227)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(5.2359877559829888227)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y -0 z ${zz}
+set atom 1 x 0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 -0 ${vzz}
+fix      1 anion move linear 0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+   10500    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+   10600    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+   10700    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+   10800    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+   10850    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.8972 on 1 procs for 350 steps with 4 atoms
+
+Performance: 277.503 ns/day, 0.086 hours/ns, 32.118 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0010238  | 0.0010238  | 0.0010238  |   0.0 |  0.01
+Bond    | 0.00028491 | 0.00028491 | 0.00028491 |   0.0 |  0.00
+Kspace  | 10.89      | 10.89      | 10.89      |   0.0 | 99.93
+Neigh   | 0.00015521 | 0.00015521 | 0.00015521 |   0.0 |  0.00
+Comm    | 0.00010753 | 0.00010753 | 0.00010753 |   0.0 |  0.00
+Output  | 5.9128e-05 | 5.9128e-05 | 5.9128e-05 |   0.0 |  0.00
+Modify  | 0.0057831  | 0.0057831  | 0.0057831  |   0.0 |  0.05
+Other   |            | 0.0002403  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 31*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(5.4105206811824215762)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(5.4105206811824215762)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y -0 z ${zz}
+set atom 1 x 0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 -0 ${vzz}
+fix      1 anion move linear 0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+   10850    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+   10900    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+   11000    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+   11100    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+   11200    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.8974 on 1 procs for 350 steps with 4 atoms
+
+Performance: 277.498 ns/day, 0.086 hours/ns, 32.118 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00104    | 0.00104    | 0.00104    |   0.0 |  0.01
+Bond    | 0.00027204 | 0.00027204 | 0.00027204 |   0.0 |  0.00
+Kspace  | 10.89      | 10.89      | 10.89      |   0.0 | 99.93
+Neigh   | 0.00014353 | 0.00014353 | 0.00014353 |   0.0 |  0.00
+Comm    | 0.00010753 | 0.00010753 | 0.00010753 |   0.0 |  0.00
+Output  | 5.9605e-05 | 5.9605e-05 | 5.9605e-05 |   0.0 |  0.00
+Modify  | 0.0057745  | 0.0057745  | 0.0057745  |   0.0 |  0.05
+Other   |            | 0.0002296  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 32*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(5.5850536063818543298)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(5.5850536063818543298)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y -0 z ${zz}
+set atom 1 x 0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 -0 ${vzz}
+fix      1 anion move linear 0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+   11200    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+   11300    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+   11400    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+   11500    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+   11550    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.8882 on 1 procs for 350 steps with 4 atoms
+
+Performance: 277.733 ns/day, 0.086 hours/ns, 32.145 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0010006  | 0.0010006  | 0.0010006  |   0.0 |  0.01
+Bond    | 0.00028944 | 0.00028944 | 0.00028944 |   0.0 |  0.00
+Kspace  | 10.88      | 10.88      | 10.88      |   0.0 | 99.93
+Neigh   | 0.00015736 | 0.00015736 | 0.00015736 |   0.0 |  0.00
+Comm    | 0.00011444 | 0.00011444 | 0.00011444 |   0.0 |  0.00
+Output  | 5.9128e-05 | 5.9128e-05 | 5.9128e-05 |   0.0 |  0.00
+Modify  | 0.0058415  | 0.0058415  | 0.0058415  |   0.0 |  0.05
+Other   |            | 0.0002496  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 33*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(5.7595865315812870833)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(5.7595865315812870833)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y -0 z ${zz}
+set atom 1 x 0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 -0 ${vzz}
+fix      1 anion move linear 0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+   11550    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+   11600    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+   11700    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+   11800    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+   11900    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.8828 on 1 procs for 350 steps with 4 atoms
+
+Performance: 277.869 ns/day, 0.086 hours/ns, 32.161 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.00103    | 0.00103    | 0.00103    |   0.0 |  0.01
+Bond    | 0.00029874 | 0.00029874 | 0.00029874 |   0.0 |  0.00
+Kspace  | 10.875     | 10.875     | 10.875     |   0.0 | 99.93
+Neigh   | 0.00016761 | 0.00016761 | 0.00016761 |   0.0 |  0.00
+Comm    | 9.7036e-05 | 9.7036e-05 | 9.7036e-05 |   0.0 |  0.00
+Output  | 6.0797e-05 | 6.0797e-05 | 6.0797e-05 |   0.0 |  0.00
+Modify  | 0.0060759  | 0.0060759  | 0.0060759  |   0.0 |  0.06
+Other   |            | 0.0002472  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 34*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(5.9341194567807198368)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(5.9341194567807198368)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y -0 z ${zz}
+set atom 1 x 0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 -0 ${vzz}
+fix      1 anion move linear 0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+   11900    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+   12000    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+   12100    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+   12200    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+   12250    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 11.0718 on 1 procs for 350 steps with 4 atoms
+
+Performance: 273.127 ns/day, 0.088 hours/ns, 31.612 timesteps/s
+99.9% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.001075   | 0.001075   | 0.001075   |   0.0 |  0.01
+Bond    | 0.00031137 | 0.00031137 | 0.00031137 |   0.0 |  0.00
+Kspace  | 11.064     | 11.064     | 11.064     |   0.0 | 99.93
+Neigh   | 0.00016618 | 0.00016618 | 0.00016618 |   0.0 |  0.00
+Comm    | 9.8467e-05 | 9.8467e-05 | 9.8467e-05 |   0.0 |  0.00
+Output  | 6.5804e-05 | 6.5804e-05 | 6.5804e-05 |   0.0 |  0.00
+Modify  | 0.0060785  | 0.0060785  | 0.0060785  |   0.0 |  0.05
+Other   |            | 0.0002441  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 35*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(6.1086523819801534785)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(6.1086523819801534785)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y -0 z ${zz}
+set atom 1 x 0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 -0 ${vzz}
+fix      1 anion move linear 0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+   12250    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+   12300    38.754379  -0.79589325   0.01502819  3.53946e-12  -0.68754577 0.0022054033 
+   12400    38.754379  -0.37900499   0.01502819  3.53946e-12   -0.3645997 0.0022054033 
+   12500    38.754379  -0.24826151   0.01502819  3.53946e-12  -0.22788373 0.0022054033 
+   12600    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.886 on 1 procs for 350 steps with 4 atoms
+
+Performance: 277.787 ns/day, 0.086 hours/ns, 32.151 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0010009  | 0.0010009  | 0.0010009  |   0.0 |  0.01
+Bond    | 0.00030422 | 0.00030422 | 0.00030422 |   0.0 |  0.00
+Kspace  | 10.878     | 10.878     | 10.878     |   0.0 | 99.93
+Neigh   | 0.00017309 | 0.00017309 | 0.00017309 |   0.0 |  0.00
+Comm    | 0.00010324 | 0.00010324 | 0.00010324 |   0.0 |  0.00
+Output  | 6.0081e-05 | 6.0081e-05 | 6.0081e-05 |   0.0 |  0.00
+Modify  | 0.005954   | 0.005954   | 0.005954   |   0.0 |  0.05
+Other   |            | 0.0002499  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0
+#run             1
+
+next k
+jump in.CG.IL phi_loop
+variable k loop 0 36
+variable phi equal $k*10
+variable phi equal 36*10
+
+variable  vxx equal sin($(v_theta/180*PI))*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos($(v_phi/180*PI))
+variable  vxx equal sin(0)*cos(6.283185307179586232)
+variable  vyy equal sin($(v_theta/180*PI))*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin($(v_phi/180*PI))
+variable  vyy equal sin(0)*sin(6.283185307179586232)
+variable  vzz equal cos($(v_theta/180*PI))
+variable  vzz equal cos(0)
+variable  xx equal v_dist*v_vxx
+variable  yy equal v_dist*v_vyy
+variable  zz equal v_dist*v_vzz
+
+set atom 1 x ${xx} y ${yy} z ${zz}
+set atom 1 x 0 y ${yy} z ${zz}
+set atom 1 x 0 y -0 z ${zz}
+set atom 1 x 0 y -0 z 4
+  1 settings made for x
+  1 settings made for y
+  1 settings made for z
+fix      1 anion move linear ${vxx} ${vyy} ${vzz}
+fix      1 anion move linear 0 ${vyy} ${vzz}
+fix      1 anion move linear 0 -0 ${vzz}
+fix      1 anion move linear 0 -0 1
+
+run             350       #!!! Number of steps (Use 1 for fixed radius)
+MSM initialization ...
+WARNING: Adjusting Coulombic cutoff for MSM, new cutoff = 150.648 (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/KSPACE/msm.cpp:1054)
+  using 12-bit tables for long-range coulomb (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:321)
+WARNING: For better accuracy use 'pair_modify table 0' (/home/conda/feedstock_root/build_artifacts/lammps_1526417570236/work/src/kspace.cpp:342)
+  3d grid size/proc = 1331
+  estimated absolute RMS force accuracy = 1.43996e-05
+  estimated relative force accuracy = 1e-06
+  grid = 2 2 2
+  order = 10
+Per MPI rank memory allocation (min/avg/max) = 6.787 | 6.787 | 6.787 Mbytes
+Step Temp PotEng KinEng E_bond Press Density 
+   12600    38.754379    21.813081   0.01502819  3.53946e-12    296.75095 0.0022054033 
+   12700    38.754379  -0.51475481   0.01502819  3.53946e-12  -0.50818401 0.0022054033 
+   12800    38.754379  -0.29999725   0.01502819  3.53946e-12  -0.28189058 0.0022054033 
+   12900    38.754379  -0.21174996   0.01502819  3.53946e-12  -0.18979913 0.0022054033 
+   12950    38.754379  -0.18460824   0.01502819  3.53946e-12  -0.16148805 0.0022054033 
+Loop time of 10.9695 on 1 procs for 350 steps with 4 atoms
+
+Performance: 275.673 ns/day, 0.087 hours/ns, 31.907 timesteps/s
+100.0% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.0010002  | 0.0010002  | 0.0010002  |   0.0 |  0.01
+Bond    | 0.00030971 | 0.00030971 | 0.00030971 |   0.0 |  0.00
+Kspace  | 10.962     | 10.962     | 10.962     |   0.0 | 99.93
+Neigh   | 0.00014782 | 0.00014782 | 0.00014782 |   0.0 |  0.00
+Comm    | 0.00010943 | 0.00010943 | 0.00010943 |   0.0 |  0.00
+Output  | 6.3896e-05 | 6.3896e-05 | 6.3896e-05 |   0.0 |  0.00
+Modify  | 0.0058508  | 0.0058508  | 0.0058508  |   0.0 |  0.05
+Other   |            | 0.0002522  |            |       |  0.00
+
+Nlocal:    4 ave 4 max 4 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    6 ave 6 max 6 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 6
+Ave neighs/atom = 1.5
+Ave special neighs/atom = 1.5
+Neighbor list builds = 32
+Dangerous builds = 0

@@ -1,0 +1,64 @@
+# 
+
+units           real
+atom_style      full
+boundary        p p p
+pair_style      lj/cut 30 
+kspace_style    none
+bond_style      harmonic
+angle_style     harmonic
+
+read_data       read_file.txt
+
+molecule 	weak weak.txt
+molecule 	hard hard.txt
+
+variable 	ILpe equal pe
+fix 		1 all print 1 "${radius} ${ILpe}" file pe_${cutoff}.dat
+
+## define coordinates
+variable x1  equal x[1]
+variable y1  equal y[1]
+variable z1  equal z[1]
+
+variable x2  equal x[2]
+variable y2  equal y[2]
+variable z2  equal z[2]
+
+variable x3  equal x[3]
+variable y3  equal y[3]
+variable z3  equal z[3]
+
+
+compute		1 all bond/local dist engpot force
+dump		1 all local 1 bond_${cutoff}.dump c_1[*]
+dump		2 all atom  1 all_${cutoff}.dump 
+fix		fix_react all bond/react stabilization no react react_23 all 1 0.0 ${cutoff} weak hard map.txt
+
+# MD settings
+
+reset_timestep  0
+timestep        0.5
+
+label radius_loop
+variable	radius index   0.0 5.0 10.0
+variable	theta  equal   90
+variable 	phi    equal   90
+
+#variable  	xx equal v_x1+v_radius*sin(v_theta/180*PI)*cos(v_phi/180*PI)
+#variable  	yy equal v_y1+v_radius*sin(v_theta/180*PI)*sin(v_phi/180*PI)
+#variable  	zz equal v_z1+v_radius*cos(v_theta/180*PI)
+variable  	xx equal v_radius*sin(v_theta/180*PI)*cos(v_phi/180*PI)
+variable  	yy equal v_radius*sin(v_theta/180*PI)*sin(v_phi/180*PI)
+variable  	zz equal v_radius*cos(v_theta/180*PI)
+
+set 		atom 1 x ${xx} y ${yy} z ${zz}
+#minimize 	0.0 1.0e-8 1000 100000
+
+run      	1 
+variable 	dist_13 equal sqrt((v_x1-v_x3)*(v_x1-v_x3)+(v_y1-v_y3)*(v_y1-v_y3)+(v_z1-v_z3)*(v_z1-v_z3))
+print		"radius, dist_13 = ${radius}, ${dist_13}"
+
+next radius
+jump lammps.inp radius_loop
+
